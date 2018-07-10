@@ -9,9 +9,9 @@ import (
 )
 
 type RequestCalcJobInfo struct {
-	JobTotal int `json:"job_total"`
+	JobTotal float64 `json:"job_total"`
 	DownPaymentPercentage float64 `json:"down_payment_percentage"`
-	Materials []int `json:"materials"`
+	Materials []float64 `json:"materials"`
 	CtSplit float64 `json:"ct_split"`
 	SubSplit float64 `json:"sub_split"`
 	LaborInfo []LaborInfo `json:"labor_info"`
@@ -39,6 +39,7 @@ type OverallCosts struct {
 	CtSplit float64 `json:"ct_split"`
 	CtSplitFinalPayout float64 `json:"ct_split_final_payout"`
 	SubSplitPercentage float64 `json:"sub_split_percentage"`
+	SubSplitLeftOver float64 `json:"sub_split_left_over"`
 	SubSplit float64 `json:"sub_split`
 }
 

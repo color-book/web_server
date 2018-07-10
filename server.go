@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/color-book/web_server/indexHandler"
 	"github.com/color-book/web_server/jobCostingHandler"
 )
@@ -30,9 +31,17 @@ func runServer() {
 	router.HandleFunc("/", indexHandler.Index).Methods("GET")
 	router.HandleFunc("/calculate-job", jobCostingHandler.CalculateJob).Methods("POST")
 
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
+    // Enable Debugging for testing, consider disabling in production
+    Debug: true,
+})
+
+	// handler := c.Handler(router)
 	server := &http.Server{
 		Addr:         listenAddr,
-		Handler:      router,
+		Handler:      c.Handler(router),
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
