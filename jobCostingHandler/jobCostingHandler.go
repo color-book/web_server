@@ -20,20 +20,23 @@ type RequestCalcJobInfo struct {
 type LaborInfo struct {
 	Name string `json:"name"`
 	Weight float64 `json:"weight"`
-  Hours int `json:"hours"`
+	Hours int `json:"hours"`
+	Rental float64 `json:"rental"`
+	Reimbursement float64 `json:"reimbursement"`
 }
 
 type ResponseJobCost struct {
 	OverallCosts `json:"overall_costs"`
 	PainterRates []PainterRates `json:"painter_rates"`
+	CostingErrors `json:"costing_errors"`
 }
 
 type OverallCosts struct {
 	JobTotal float64 `json:"job_total"`
 	DownPaymentPercentage float64 `json:"down_payment_percentage"`
 	DownPayment float64 `json:"down_payment"`
-	Materials []int `json:"materials"`
-	MaterialsTotal int `json:"materials_total"`
+	Materials []float64 `json:"materials"`
+	MaterialsTotal float64 `json:"materials_total"`
 	Labor float64 `json:"labor"`
 	CtSplitPercentage float64 `json:"ct_split_percentage"`
 	CtSplit float64 `json:"ct_split"`
@@ -50,6 +53,11 @@ type PainterRates struct {
 	TotalHours float64 `json:"total_hours"`
 	Payout float64 `json:"payout"`
 	HourlyAverage float64 `json:"hourly_average"`
+}
+
+type CostingErrors struct {
+	Errors bool `json:"errors"`
+	ErrorMessage string `json:"error_message"`
 }
 
 
