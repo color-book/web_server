@@ -11,6 +11,8 @@ import (
 type RequestCalcJobInfo struct {
 	JobTotal float64 `json:"job_total"`
 	DownPaymentPercentage float64 `json:"down_payment_percentage"`
+	DownPaymentAmount float64 `json:"down_payment_amount"`
+	UseDownPaymentPercentage bool `json:"use_down_payment_percentage"`
 	Materials []float64 `json:"materials"`
 	CtSplit float64 `json:"ct_split"`
 	SubSplit float64 `json:"sub_split"`
@@ -23,6 +25,8 @@ type LaborInfo struct {
 	Hours int `json:"hours"`
 	Rental float64 `json:"rental"`
 	Reimbursement float64 `json:"reimbursement"`
+	InTraining bool `json:"in_training"`
+	TrainedBy string `json:"trained_by"`
 }
 
 type ResponseJobCost struct {
@@ -51,6 +55,7 @@ type PainterRates struct {
 	Weight float64 `json:"weight"`
 	Hours float64 `json:"hours"`
 	TotalHours float64 `json:"total_hours"`
+	TrainingPayout float64 `json:"training_payout"`
 	Payout float64 `json:"payout"`
 	HourlyAverage float64 `json:"hourly_average"`
 }
