@@ -27,6 +27,10 @@ type LaborInfo struct {
 	Reimbursement float64 `json:"reimbursement"`
 	InTraining bool `json:"in_training"`
 	TrainedBy string `json:"trained_by"`
+	AddBonus bool `json:"add_bonus"`
+	RevenueBonus bool `json:"revenue_bonus"`
+	GPBonus bool `json:"gp_bonus"`
+	BonusPercentage float64 `json:"bonus_percentage"`
 }
 
 type ResponseJobCost struct {
@@ -56,6 +60,7 @@ type PainterRates struct {
 	Hours float64 `json:"hours"`
 	TotalHours float64 `json:"total_hours"`
 	TrainingPayout float64 `json:"training_payout"`
+	BonusAmount float64 `json:"bonus_amount"`
 	Payout float64 `json:"payout"`
 	HourlyAverage float64 `json:"hourly_average"`
 }
