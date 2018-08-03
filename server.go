@@ -29,7 +29,7 @@ func runServer() {
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", indexHandler.Index).Methods("GET")
-	router.HandleFunc("/calculate-job", jobCostingHandler.CalculateJob).Methods("POST")
+	router.HandleFunc("/api/calculate-job", jobCostingHandler.CalculateJob).Methods("POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
