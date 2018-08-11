@@ -22,7 +22,7 @@ type RequestCalcJobInfo struct {
 type LaborInfo struct {
 	Name string `json:"name"`
 	Weight float64 `json:"weight"`
-	Hours int `json:"hours"`
+	Hours float64 `json:"hours"`
 	Rental float64 `json:"rental"`
 	Reimbursement float64 `json:"reimbursement"`
 	InTraining bool `json:"in_training"`
