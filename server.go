@@ -2,14 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"flag"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+	"database/sql"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+
+	_ "github.com/lib/pq"
+
+	"github.com/color-book/web_server/dataStore"
 	"github.com/color-book/web_server/indexHandler"
 	"github.com/color-book/web_server/jobCostingHandler"
 )
@@ -24,7 +31,24 @@ func runServer() {
 
 	// LOGGING
 	logger := log.New(os.Stdout, "http: ", log.LstdFlags)
-	logger.Println("Server is starting...")
+	logger.Println("Colorbook server is starting...")
+
+	// INITIALIZE DATABASE
+	connString := fmt.Sprintf("host=%s port=%d user=%s "+
+	"password=%s dbname=%s sslmode=disable",
+	"localhost", 5432, "postgres", "", "color-book")
+	db, err := sql.Open("postgres", connString)
+
+	if err != nil {
+		panic(err)
+	}
+	err = db.Ping()
+
+	if err != nil {
+		panic(err)
+	}
+
+	dataStore.InitStore(&dataStore.DBStore{DB: db})
 
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
@@ -73,7 +97,7 @@ func runServer() {
 	}
 
 	<-done
-	logger.Println("Server stopped")
+	logger.Println("Colorbook server stopped")
 }
 
 func main() {
