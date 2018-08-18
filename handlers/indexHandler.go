@@ -1,4 +1,4 @@
-package indexHandler
+package handlers
 
 import (
 	"net/http"

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"flag"
 	"log"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -17,27 +17,46 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/color-book/web_server/dataStore"
-	"github.com/color-book/web_server/indexHandler"
-	"github.com/color-book/web_server/jobCostingHandler"
-	"github.com/color-book/web_server/authenticationHandler"
+	"github.com/color-book/web_server/handlers"
 )
+
+type Configuration struct {
+	DB_CONNECTION_STRING string
+}
 
 var (
 	listenAddr string
+	configuration Configuration
 )
+
+func initializeConfigVariables() {
+
+	file, err := os.Open("./config.json") 
+	if err != nil {  
+		panic(err) 
+	}  
+
+	decoder := json.NewDecoder(file) 
+	err = decoder.Decode(&configuration) 
+	if err != nil {  
+		panic(err) 
+	}
+
+}
 
 func runServer() {
 	flag.StringVar(&listenAddr, "listen-addr", ":5050", "server listen address")
 	flag.Parse()
+
+	// INITIALIZE CONFIG VARIABLES
+	initializeConfigVariables()
 
 	// LOGGING
 	logger := log.New(os.Stdout, "http: ", log.LstdFlags)
 	logger.Println("Colorbook server is starting...")
 
 	// INITIALIZE DATABASE
-	connString := fmt.Sprintf("host=%s port=%d user=%s "+
-	"dbname=%s sslmode=disable",
-	"localhost", 5432, "postgres", "color_book")
+	connString := configuration.DB_CONNECTION_STRING
 	db, err := sql.Open("postgres", connString)
 
 	if err != nil {
@@ -53,19 +72,18 @@ func runServer() {
 
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", indexHandler.Index).Methods("GET")
-	router.HandleFunc("/get-positions", authenticationHandler.GetPositions).Methods("GET")
-	router.HandleFunc("/register", authenticationHandler.Register).Methods("POST")
-	router.HandleFunc("/calculate-job", jobCostingHandler.CalculateJob).Methods("POST")
+	router.HandleFunc("/", handlers.Index).Methods("GET")
+	router.HandleFunc("/get-positions", handlers.GetPositions).Methods("GET")
+	router.HandleFunc("/register", handlers.Register).Methods("POST")
+	router.HandleFunc("/calculate-job",handlers.CalculateJob).Methods("POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
 		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
     // Enable Debugging for testing, consider disabling in production
     Debug: true,
-})
+	})
 
-	// handler := c.Handler(router)
 	server := &http.Server{
 		Addr:         listenAddr,
 		Handler:      c.Handler(router),

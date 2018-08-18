@@ -1,4 +1,4 @@
-package jobCostingHandler
+package handlers
 
 import (
 	"fmt"
