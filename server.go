@@ -19,6 +19,7 @@ import (
 	"github.com/color-book/web_server/dataStore"
 	"github.com/color-book/web_server/indexHandler"
 	"github.com/color-book/web_server/jobCostingHandler"
+	"github.com/color-book/web_server/authenticationHandler"
 )
 
 var (
@@ -35,8 +36,8 @@ func runServer() {
 
 	// INITIALIZE DATABASE
 	connString := fmt.Sprintf("host=%s port=%d user=%s "+
-	"password=%s dbname=%s sslmode=disable",
-	"localhost", 5432, "postgres", "", "color-book")
+	"dbname=%s sslmode=disable",
+	"localhost", 5432, "postgres", "color_book")
 	db, err := sql.Open("postgres", connString)
 
 	if err != nil {
@@ -53,6 +54,8 @@ func runServer() {
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", indexHandler.Index).Methods("GET")
+	router.HandleFunc("/get-positions", authenticationHandler.GetPositions).Methods("GET")
+	router.HandleFunc("/register", authenticationHandler.Register).Methods("POST")
 	router.HandleFunc("/calculate-job", jobCostingHandler.CalculateJob).Methods("POST")
 
 	c := cors.New(cors.Options{

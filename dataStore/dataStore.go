@@ -5,9 +5,9 @@ import (
 )
 
 // List the Data Store's methods
-type Store interface {
+type StoreType interface {
 	CreateUser(user *User) error
-	GetUsers() ([]*User, error)
+	GetPositions() ([]*Position, error)
 }
 
 // The `dbStore` struct will implement the `Store` interface
@@ -19,7 +19,7 @@ type DBStore struct {
 
 // The store variable is a package level variable that will be available for
 // use throughout our application code
-var store Store
+var Store StoreType
 
 /*
 We will need to call the InitStore method to initialize the store. This will
@@ -27,6 +27,6 @@ typically be done at the beginning of our application (in this case, when the se
 This can also be used to set up the store as a mock, which we will be observing
 later on
 */
-func InitStore(s Store) {
-	store = s
+func InitStore(s StoreType) {
+	Store = s
 }
