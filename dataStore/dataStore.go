@@ -7,6 +7,7 @@ import (
 // List the Data Store's methods
 type StoreType interface {
 	CreateUser(user *User) error
+	GetUserByEmail(email string) ([]*User, error)
 	GetPositions() ([]*Position, error)
 }
 

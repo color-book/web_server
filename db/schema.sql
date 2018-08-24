@@ -6,7 +6,7 @@ CREATE TABLE users (
   uuid VARCHAR(36) UNIQUE NOT NULL,
   first_name VARCHAR(50) NOT NULL,
   last_name VARCHAR(50) NOT NULL,
-  email VARCHAR(80) NOT NULL,
+  email VARCHAR(80) UNIQUE NOT NULL,
   password TEXT,
   phone_number VARCHAR(11),
   street_address TEXT,

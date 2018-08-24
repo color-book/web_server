@@ -1,9 +1,14 @@
 package dataStore
 
-import "github.com/twinj/uuid"
+import (
+	"log"
+	"github.com/twinj/uuid"
+	);
 
 
 type User struct {
+	Id *int `json:"id"`
+	UUID *string `json:"uuid"`
 	Firstname string `json:"firstname"`
   Lastname string `json:"lastname"`
   Email string `json:"email"`
@@ -21,9 +26,11 @@ type Position struct {
 	Name string `json:"name"`
 }
 
-func (store *DBStore) CreateUser(user *User) error {
-
+func init() {
 	uuid.Init()
+}
+
+func (store *DBStore) CreateUser(user *User) error {
 
 	// NewV4 generates a new RFC4122 version 4 UUID a cryptographically secure random UUID.
 	uuid := uuid.NewV4()
@@ -40,6 +47,32 @@ func (store *DBStore) CreateUser(user *User) error {
 		user.City, user.State, user.ZipCode,
 		user.Timezone)
 	return err
+}
+
+func (store *DBStore) GetUserByEmail(email string) ([]*User, error) {
+	rows, err := store.DB.Query("SELECT * FROM users WHERE email = $1", email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := []*User{}
+	for rows.Next() {
+
+		user := &User{}
+
+		err := rows.Scan(&user.Id, &user.UUID, &user.Firstname, &user.Lastname,
+			&user.Email, &user.Password, &user.PhoneNumber, &user.StreetAddress,
+			&user.City, &user.State, &user.ZipCode, &user.Timezone); 
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (store *DBStore) GetPositions() ([]*Position, error) {

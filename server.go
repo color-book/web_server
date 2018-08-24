@@ -75,6 +75,7 @@ func runServer() {
 	router.HandleFunc("/", handlers.Index).Methods("GET")
 	router.HandleFunc("/get-positions", handlers.GetPositions).Methods("GET")
 	router.HandleFunc("/register", handlers.Register).Methods("POST")
+	router.HandleFunc("/login", handlers.Login).Methods("POST")
 	router.HandleFunc("/calculate-job",handlers.CalculateJob).Methods("POST")
 
 	c := cors.New(cors.Options{
