@@ -7,10 +7,22 @@ import (
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/color-book/web_server/dataStore"
+	"github.com/color-book/web_server/configVars"
 )
 
+type JwtTokenResponse struct {
+	Token string `json:"token"`
+	Sucess bool `json:"success"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
+/*
+*
+* REGISTER USER FUNCTION
+*/
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/register" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -24,11 +36,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
-	// request_data, err := json.Marshal(userInfo)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	if len(userInfo.Password) > 0 {
 		passwordByte := []byte(userInfo.Password)
@@ -52,6 +59,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+*
+* LOGIN FUNCTION
+*/
 func Login(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/login" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -60,8 +71,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	var userInfo dataStore.User
 
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&userInfo)
+	err := json.NewDecoder(r.Body).Decode(&userInfo)
 	if err != nil {
 		panic(err)
 	}
@@ -80,24 +90,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		pwdMatch := comparePasswords(users[0].Password, userInfo.Password)
 
 		if pwdMatch {
-			w.Write([]byte(`{"success": "true", "message": "The user can be logged in!"}`))
+
+			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+				"uuid": users[0].UUID,
+			})
+			tokenString, error := token.SignedString([]byte(configVars.Config.JWT_TOKEN_SECRET))
+			if error != nil {
+				fmt.Println(error)
+			}
+			json.NewEncoder(w).Encode(JwtTokenResponse{Token: tokenString, Sucess: true, ErrorMessage: ""})
 		} else {
-			w.Write([]byte(`{"success": "false", "message": "Incorrect Password"}`))
+			json.NewEncoder(w).Encode(JwtTokenResponse{Token: "", Sucess: false, ErrorMessage: "Incorrect Password"})
 		}
 	} else {
-		w.Write([]byte(`{"success": "false", "message": "A user with that email doesn't exist"}`))
+		json.NewEncoder(w).Encode(JwtTokenResponse{Token: "", Sucess: false, ErrorMessage: "A user with that email doesn't exist"})
 	}
 
-
-	// userListBytes, err := json.Marshal(users)
-	// println(userListBytes)
-	// if err != nil {
-	// 	fmt.Println(fmt.Errorf("Error: %v", err))
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
-	// w.Write(userListBytes)
-	// w.Write([]byte("hey"))
 }
 
 
