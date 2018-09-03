@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
 	"net/http"
@@ -24,7 +24,7 @@ type JwtTokenResponse struct {
 * REGISTER USER FUNCTION
 */
 func Register(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/register" {
+	if r.URL.Path != "/api/register" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
@@ -64,7 +64,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 * LOGIN FUNCTION
 */
 func Login(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/login" {
+	if r.URL.Path != "/api/login" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}

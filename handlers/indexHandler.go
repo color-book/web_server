@@ -2,14 +2,29 @@ package handlers
 
 import (
 	"net/http"
+	"html/template"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+func RenderLogin(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/login" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello, World!"))
+
+	tmpl := template.Must(template.ParseFiles("./templates/login.html"))
+
+	tmpl.Execute(w, "")
+
+}
+
+func RenderDashboard(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/dashboard" {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles("./templates/dashboard.html"))
+
+	tmpl.Execute(w, "")
+
 }

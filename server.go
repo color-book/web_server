@@ -22,6 +22,7 @@ import (
 
 	"github.com/color-book/web_server/dataStore"
 	"github.com/color-book/web_server/handlers"
+	"github.com/color-book/web_server/api"
 	"github.com/color-book/web_server/configVars"
 )
 
@@ -62,14 +63,22 @@ func runServer() {
 
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", handlers.Index).Methods("GET")
-	router.HandleFunc("/get-positions", ensureAuthenticated(handlers.GetPositions)).Methods("GET")
-	router.HandleFunc("/register", handlers.Register).Methods("POST")
-	router.HandleFunc("/login", handlers.Login).Methods("POST")
-	router.HandleFunc("/calculate-job", ensureAuthenticated(handlers.CalculateJob)).Methods("POST")
+
+	// SERVE STATIC FILES
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("colorBook/static/"))))
+
+	// RENDER ROUTES
+	router.HandleFunc("/login", handlers.RenderLogin).Methods("GET")
+	router.HandleFunc("/dashboard", handlers.RenderDashboard).Methods("GET")
+
+	// API ENDPOINTS
+	router.HandleFunc("/api/get-positions", ensureAuthenticated(api.GetPositions)).Methods("GET")
+	router.HandleFunc("/api/register", api.Register).Methods("POST")
+	router.HandleFunc("/api/login", api.Login).Methods("POST")
+	router.HandleFunc("/api/calculate-job", ensureAuthenticated(api.CalculateJob)).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedOrigins: []string{"http://localhost:5050"},
 		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
     // Enable Debugging for testing, consider disabling in production
     Debug: true,
