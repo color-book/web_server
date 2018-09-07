@@ -1,0 +1,32 @@
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.dashboard-sidebar {
+  padding: 10px;
+}
+
+.sidebar-welcome {
+  text-align: center;
+}
+
+.dashboard-nav {
+  display: flex;
+  justify-content: center;
+  background: lightblue;
+  border-bottom: 1px solid;
+}
+
+.dashboard-nav-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.dashboard-nav-right {
+  width: 100vw;
+  text-align: center;
+}

@@ -30,3 +30,9 @@
   font-size: 15px;
   display: block;
 }
+
+.colorBook-logo {
+  width: 50vw;
+  padding: 0px;
+  margin-left: -10px;
+}

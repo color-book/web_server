@@ -23,7 +23,19 @@ func RenderDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("./templates/dashboard.html"))
+	tmpl := template.Must(template.ParseFiles("./templates/dashboard-layout.html", "./templates/dashboard.html"))
+
+	tmpl.Execute(w, "")
+
+}
+
+func RenderCreateAJob(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/dashboard/create-a-job" {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles("./templates/dashboard-layout.html", "./templates/create-a-job.html"))
 
 	tmpl.Execute(w, "")
 

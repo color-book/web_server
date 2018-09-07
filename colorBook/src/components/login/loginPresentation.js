@@ -13,7 +13,8 @@ const Login = ({loginSuccess, errorOccurred, errorMessage, login, updateEmail, u
     loginForm = <div className="login-main">
     <Row>
       <Col className="colorBook-login-header">
-        <h2>Color Book</h2>
+        {/* <h2>Color Book</h2> */}
+        <img id="logo" className="colorBook-logo" src="/static/img/color_book_logo.png" alt="Color Book" />
       </Col>
     </Row>
     <Row>

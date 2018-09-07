@@ -1,4 +1,10 @@
-
+-- Company Accounts Table
+CREATE TABLE company_accounts (
+  id SERIAL PRIMARY KEY,
+  uuid VARCHAR(36) UNIQUE NOT NULL,
+  name TEXT,
+  start_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Users Table
 CREATE TABLE users (
@@ -14,7 +20,7 @@ CREATE TABLE users (
   state VARCHAR(2),
   zipcode VARCHAR(5),
   timezone TEXT,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Password History Table
@@ -22,8 +28,8 @@ CREATE TABLE password_history (
   id SERIAL PRIMARY KEY,
   user_uuid VARCHAR(36) REFERENCES users(uuid),
   password_hash TEXT,
-  changed_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+  changed_on TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Positions Table
 CREATE TABLE positions (
@@ -37,8 +43,8 @@ CREATE TABLE users_to_positions (
   user_uuid VARCHAR(36) REFERENCES users(uuid),
   current_position_id INTEGER REFERENCES positions(id),
   intial_application_position INTEGER REFERENCES positions(id),
-  date_applied TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  last_changed TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  date_applied TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_changed TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Users To Positions History Table
@@ -46,5 +52,84 @@ CREATE TABLE user_position_history (
   id SERIAL PRIMARY KEY,
   user_uuid VARCHAR(36) REFERENCES users(uuid),
   held_position_id INTEGER REFERENCES positions(id),
-  date_started TIMESTAMP NOT NULL
-)
+  date_started TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+-- Users To Company Accounts
+CREATE TABLE users_to_company_accounts (
+  id SERIAL PRIMARY KEY,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  company_uuid VARCHAR(36) REFERENCES company_accounts(uuid),
+  user_joined_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Job Information
+CREATE TABLE jobs (
+  id SERIAL PRIMARY KEY,
+  uuid VARCHAR(36) UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  project_title TEXT NOT NULL,
+  estimated_total_hours INTEGER,
+  estimated_start_date TIMESTAMP WITH TIME ZONE,
+  actual_start_date TIMESTAMP WITH TIME ZONE,
+  actual_total_hours INTEGER,
+  completed BOOLEAN,
+  inProgress BOOLEAN,
+  street_address TEXT,
+  city VARCHAR(50),
+  state VARCHAR(2),
+  client_phone_number VARCHAR(11),
+  client_name TEXT,
+  down_payment_amount DOUBLE PRECISION,
+  down_payment_percentage DOUBLE PRECISION,
+  total DOUBLE PRECISION,
+  contractor_split_percentage DOUBLE PRECISION,
+  sub_contractor_split_percentage DOUBLE PRECISION,
+  created_by VARCHAR(36) REFERENCES users(uuid),
+);
+
+-- Job Line Item
+CREATE TABLE job_line_item (
+  id SERIAL PRIMARY KEY,
+  job_uuid VARCHAR(36) REFERENCES jobs(uuid),
+  item TEXT,
+  estimated_hours DOUBLE PRECISION,
+  estimated_price DOUBLE PRECISION,
+);
+
+-- Users to Job
+CREATE TABLE users_to_job (
+  id SERIAL PRIMARY KEY,
+  uuid VARCHAR(36) UNIQUE NOT NULL,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  job_uuid VARCHAR(36) REFERENCES jobs(uuid),
+  user_weight DOUBLE PRECISION,
+  user_current_job_hours DOUBLE PRECISION,
+  user_rental_fee DOUBLE PRECISION,
+  user_reimbursement DOUBLE PRECISION,
+  user_in_training BOOLEAN,
+  user_trained_by VARCHAR(36) REFERENCES users(uuid),
+  user_revenue_bonus BOOLEAN,
+  user_gross_profit_bonus BOOLEAN,
+  user_bonus_percentage DOUBLE PRECISION
+);
+
+-- Users to time
+CREATE TABLE users_to_time (
+  id SERIAL PRIMARY KEY,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  job_uuid VARCHAR(36) REFERENCES jobs(uuid),
+  clocked_in TIMESTAMP WITH TIME ZONE,
+  clocked_out TIMESTAMP WITH TIME ZONE,
+  total_time DOUBLE PRECISION
+);
+
+-- Job to Users to materials
+CREATE TABLE users_to_job_to_materials (
+  id SERIAL PRIMARY KEY,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  job_uuid VARCHAR(36) REFERENCES jobs(uuid),
+  material description
+  material_price DOUBLE PRECISION,
+  created TIMESTAMP WITH TIME ZONE
+);

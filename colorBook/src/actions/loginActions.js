@@ -9,7 +9,8 @@ export const UPDATE_LOGIN_INFO = 'UPDATE_LOGIN_INFO';
 export const LOGIN_USER = 'LOGIN_USER';
 export const HANDLE_INVALID_LOGIN = 'HANDLE_INVALID_LOGIN';
 export const REMOVE_ERROR_MESSAGE = 'REMOVE_ERROR_MESSAGE';
-export const LOGIN_SUCCESSFUL = 'LOGIN_SUCCESSFUL'
+export const LOGIN_SUCCESSFUL = 'LOGIN_SUCCESSFUL';
+export const SAVE_TOKEN = 'SAVE_TOKEN';
 
 /**
  * action creators
@@ -45,10 +46,9 @@ export function loginUser() {
     axios.post(`${BASE_URL}/api/login`, postData)
       .then(res => {
         if (res.data.success) {
-          console.log(res.data)
           // save token to local storage/move to dashboard
+          localStorage.setItem('CB_token', res.data.token)
           dispatch(removeErrorMessage())
-          // dispatch(saveToken(res.data.token))
           dispatch(loginSuccessful())
         } else {
           // dispatch error message

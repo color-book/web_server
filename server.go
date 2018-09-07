@@ -69,6 +69,7 @@ func runServer() {
 
 	// RENDER ROUTES
 	router.HandleFunc("/login", handlers.RenderLogin).Methods("GET")
+	router.HandleFunc("/dashboard/create-a-job", handlers.RenderCreateAJob).Methods("GET")
 	router.HandleFunc("/dashboard", handlers.RenderDashboard).Methods("GET")
 
 	// API ENDPOINTS
