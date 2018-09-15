@@ -69,6 +69,7 @@ CREATE TABLE jobs (
   uuid VARCHAR(36) UNIQUE NOT NULL,
   title TEXT NOT NULL,
   project_title TEXT NOT NULL,
+  provided_job_id TEXT,
   estimated_total_hours INTEGER,
   estimated_start_date TIMESTAMP WITH TIME ZONE,
   actual_start_date TIMESTAMP WITH TIME ZONE,
@@ -85,7 +86,7 @@ CREATE TABLE jobs (
   total DOUBLE PRECISION,
   contractor_split_percentage DOUBLE PRECISION,
   sub_contractor_split_percentage DOUBLE PRECISION,
-  created_by VARCHAR(36) REFERENCES users(uuid),
+  created_by VARCHAR(36) REFERENCES users(uuid)
 );
 
 -- Job Line Item
@@ -94,7 +95,7 @@ CREATE TABLE job_line_item (
   job_uuid VARCHAR(36) REFERENCES jobs(uuid),
   item TEXT,
   estimated_hours DOUBLE PRECISION,
-  estimated_price DOUBLE PRECISION,
+  estimated_price DOUBLE PRECISION
 );
 
 -- Users to Job
@@ -129,7 +130,7 @@ CREATE TABLE users_to_job_to_materials (
   id SERIAL PRIMARY KEY,
   user_uuid VARCHAR(36) REFERENCES users(uuid),
   job_uuid VARCHAR(36) REFERENCES jobs(uuid),
-  material description
+  material_description TEXT,
   material_price DOUBLE PRECISION,
   created TIMESTAMP WITH TIME ZONE
 );

@@ -74,6 +74,8 @@ func runServer() {
 
 	// API ENDPOINTS
 	router.HandleFunc("/api/get-positions", ensureAuthenticated(api.GetPositions)).Methods("GET")
+	router.HandleFunc("/api/generate-job-id", ensureAuthenticated(api.GenerateJobID)).Methods("GET")
+	router.HandleFunc("/api/verify-job-title-and-id", ensureAuthenticated(api.VerifyJobTitleAndID)).Methods("POST")
 	router.HandleFunc("/api/register", api.Register).Methods("POST")
 	router.HandleFunc("/api/login", api.Login).Methods("POST")
 	router.HandleFunc("/api/calculate-job", ensureAuthenticated(api.CalculateJob)).Methods("POST")

@@ -9,6 +9,7 @@ type StoreType interface {
 	CreateUser(user *User) error
 	GetUserByEmail(email string) ([]*User, error)
 	GetPositions() ([]*Position, error)
+	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
 }
 
 // The `dbStore` struct will implement the `Store` interface

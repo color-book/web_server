@@ -25,7 +25,7 @@
           </div>
       </nav>
       
-      <!-- <div class="overlay" onclick="closeNav()"></div> -->
+      <div id="overlay" onclick="closeNav()"></div>
 
       <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
       <div id="main">
@@ -36,11 +36,14 @@
       /* Set the width of the side navigation to 250px */
       function openNav() {
           document.getElementById("mySidenav").style.marginLeft = "0vw";
+          document.getElementById("overlay").style.display = "block";
+          document.getElementById("overlay").style.opacity = '.5';
       }
 
       /* Set the width of the side navigation to 0 */
       function closeNav() {
           document.getElementById("mySidenav").style.marginLeft = "-50vw";
+          document.getElementById("overlay").style.display = 'none';
       }
     </script>
 	</body>

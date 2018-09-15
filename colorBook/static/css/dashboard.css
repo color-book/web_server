@@ -11,14 +11,15 @@ ul {
   text-align: center;
 }
 
-.dashboard-nav {
+
+/* .dashboard-nav {
   display: flex;
   justify-content: center;
   background: lightblue;
   border-bottom: 1px solid;
-}
+} */
 
-.dashboard-nav-left {
+/* .dashboard-nav-left {
   position: absolute;
   top: 0;
   left: 0;
@@ -29,4 +30,4 @@ ul {
 .dashboard-nav-right {
   width: 100vw;
   text-align: center;
-}
+} */

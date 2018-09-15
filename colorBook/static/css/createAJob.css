@@ -1,0 +1,65 @@
+.create-job-title {
+  font-size: 22px;
+}
+
+.input-label {
+  display: block;
+  margin-top: 15px;
+}
+
+.optional-label {
+  color: gray;
+  font-size: 15px;
+}
+
+.verify-btn {
+  background-color: #D44358;
+  border-color: #BF3C4F;
+  margin-top: 20px;
+}
+
+.generate-job-id-btn {
+  margin-left: 10px
+}
+
+.job-id-well {
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 10px;
+  background: lightgoldenrodyellow;
+}
+
+.job-id-text {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.detail-inputs-main {
+  margin-top: 20px;
+}
+
+.detail-inputs-looks-good-msg {
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.detail-inputs-form {
+  margin-top: 20px;
+}
+
+.client-info-well {
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 10px;
+  background: #CAEBF2;
+  margin-bottom: 15px;
+}
+
+#start-date-picker {
+  height: 36px;
+}
+
+.start-date-label {
+  display: block;
+}

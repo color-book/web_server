@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { updateSelectedJob, setSidebarOpen } from '../../../actions/dashboardActions'
+import { updateSelectedJob } from '../../../actions/dashboardActions'
 import TimePunch from '../presentation/timePunch'
 
 const mapStateToProps = (state, ownProps) => {
