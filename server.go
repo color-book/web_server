@@ -2,28 +2,30 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
-	"database/sql"
 	"strings"
-	"encoding/json"
+	"time"
 
 	"github.com/gorilla/mux"
-	gorillaContex "github.com/gorilla/context"
-	"github.com/rs/cors"
+	// gorillaContex "github.com/gorilla/context"
+	// "github.com/gorilla/sessions"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/rs/cors"
 
 	_ "github.com/lib/pq"
 
-	"github.com/color-book/web_server/dataStore"
-	"github.com/color-book/web_server/handlers"
 	"github.com/color-book/web_server/api"
 	"github.com/color-book/web_server/configVars"
+	"github.com/color-book/web_server/dataStore"
+	"github.com/color-book/web_server/handlers"
+	"github.com/color-book/web_server/sessionStore"
 )
 
 var (
@@ -31,7 +33,7 @@ var (
 )
 
 type MiddlewareException struct {
-	Success bool `json:"success"`
+	Success      bool   `json:"success"`
 	ErrorMessage string `json:"errorMessage"`
 }
 
@@ -61,6 +63,9 @@ func runServer() {
 
 	dataStore.InitStore(&dataStore.DBStore{DB: db})
 
+	// INITIALIZE SESSION
+	sessionStore.InitSessionStore(configVars.Config.SESSION_KEY)
+
 	// ROUTES
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -69,22 +74,29 @@ func runServer() {
 
 	// RENDER ROUTES
 	router.HandleFunc("/login", handlers.RenderLogin).Methods("GET")
-	router.HandleFunc("/dashboard/create-a-job", handlers.RenderCreateAJob).Methods("GET")
-	router.HandleFunc("/dashboard", handlers.RenderDashboard).Methods("GET")
+	router.HandleFunc("/dashboard/create-a-job", WEB_EnsureAuthenticated(handlers.RenderCreateAJob)).Methods("GET")
+	router.HandleFunc("/dashboard", WEB_EnsureAuthenticated(handlers.RenderDashboard)).Methods("GET")
+	router.HandleFunc("/logout", WEB_EnsureAuthenticated(handlers.Logout)).Methods("GET")
 
 	// API ENDPOINTS
-	router.HandleFunc("/api/get-positions", ensureAuthenticated(api.GetPositions)).Methods("GET")
-	router.HandleFunc("/api/generate-job-id", ensureAuthenticated(api.GenerateJobID)).Methods("GET")
-	router.HandleFunc("/api/verify-job-title-and-id", ensureAuthenticated(api.VerifyJobTitleAndID)).Methods("POST")
+	router.HandleFunc("/api/get-positions", API_EnsureAuthenticated(api.GetPositions)).Methods("GET")
+	router.HandleFunc("/api/generate-job-id", API_EnsureAuthenticated(api.GenerateJobID)).Methods("GET")
+	router.HandleFunc("/api/logout", API_EnsureAuthenticated(api.Logout)).Methods("GET")
+	router.HandleFunc("/api/verify-job-title-and-id", API_EnsureAuthenticated(api.VerifyJobTitleAndID)).Methods("POST")
 	router.HandleFunc("/api/register", api.Register).Methods("POST")
 	router.HandleFunc("/api/login", api.Login).Methods("POST")
-	router.HandleFunc("/api/calculate-job", ensureAuthenticated(api.CalculateJob)).Methods("POST")
+	router.HandleFunc("/api/calculate-job", API_EnsureAuthenticated(api.CalculateJob)).Methods("POST")
+	router.HandleFunc("/api/create-new-job", API_EnsureAuthenticated(api.CreateNewJob)).Methods("POST")
+
+	router.Use(loggingMiddleware)
+
+	// router.HandleFunc("/*")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5050"},
 		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
-    // Enable Debugging for testing, consider disabling in production
-    Debug: true,
+		// Enable Debugging for testing, consider disabling in production
+		Debug: false,
 	})
 
 	server := &http.Server{
@@ -130,7 +142,7 @@ func main() {
 
 /* ----------------- Middleware ------------------ */
 
-func ensureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
+func API_EnsureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		authorizationHeader := req.Header.Get("Authorization")
 		if authorizationHeader != "" {
@@ -149,7 +161,7 @@ func ensureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
 					return
 				}
 				if token.Valid {
-					gorillaContex.Set(req, "decoded", token.Claims)
+					// We can also view the token claims here with token.Claims
 					next(w, req)
 				} else {
 					json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "Invalid authorization token", Success: false})
@@ -160,5 +172,46 @@ func ensureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
 		} else {
 			json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "An authorization header is required", Success: false})
 		}
+	})
+}
+
+func WEB_EnsureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userToken, ok := sessionStore.GetSessionValue(w, r, "user_token_string")
+
+		if !ok {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}
+		if len(userToken) > 0 {
+			if len(strings.Split(userToken, ".")) == 3 {
+				token, error := jwt.Parse(userToken, func(token *jwt.Token) (interface{}, error) {
+					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+						return nil, fmt.Errorf("There was an error")
+					}
+					return []byte(configVars.Config.JWT_TOKEN_SECRET), nil
+				})
+				if error != nil {
+					json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: error.Error(), Success: false})
+					return
+				}
+				if token.Valid {
+					next(w, r)
+				}
+			} else {
+				// I would put these redirects in a return but I get
+				// a See Other link at the bottom of the page
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			}
+		} else {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}
+	})
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Method, r.URL, r.Proto)
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
 	})
 }

@@ -2,32 +2,30 @@ package dataStore
 
 import (
 	"log"
-	"github.com/twinj/uuid"
-	);
+	"time"
 
+	"github.com/twinj/uuid"
+)
 
 type User struct {
-	Id *int `json:"id"`
-	UUID *string `json:"uuid"`
-	Firstname string `json:"firstname"`
-  Lastname string `json:"lastname"`
-  Email string `json:"email"`
-  PhoneNumber int `json:"phone_number"`
-  Password string `json:"password"`
-  StreetAddress string `json:"street_address"`
-  City string `json:"city"`
-  State string `json:"state"`
-	ZipCode int `json:"zipcode"`
-	Timezone string `json:"timezone"`
+	Id            *int       `json:"id"`
+	UUID          *string    `json:"uuid"`
+	Firstname     string     `json:"firstname"`
+	Lastname      string     `json:"lastname"`
+	Email         string     `json:"email"`
+	PhoneNumber   int        `json:"phone_number"`
+	Password      string     `json:"password"`
+	StreetAddress string     `json:"street_address"`
+	City          string     `json:"city"`
+	State         string     `json:"state"`
+	ZipCode       int        `json:"zipcode"`
+	Timezone      string     `json:"timezone"`
+	Created       *time.Time `json:"created"`
 }
 
 type Position struct {
-	Id string `json:"id"`
+	Id   string `json:"id"`
 	Name string `json:"name"`
-}
-
-func init() {
-	uuid.Init()
 }
 
 func (store *DBStore) CreateUser(user *User) error {
@@ -35,15 +33,11 @@ func (store *DBStore) CreateUser(user *User) error {
 	// NewV4 generates a new RFC4122 version 4 UUID a cryptographically secure random UUID.
 	uuid := uuid.NewV4()
 
-	// 'User' is a simple struct which has "species" and "description" attributes
-	// THe first underscore means that we don't care about what's returned from
-	// this insert query. We just want to know if it was inserted correctly,
-	// and the error will be populated if it wasn't
-  _, err := store.DB.Query(`INSERT INTO users (uuid, first_name, last_name, email, phone_number, 
-    password, street_address, city, state, zipcode, timezone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, 
-    uuid, user.Firstname, user.Lastname,
-    user.Email, user.PhoneNumber,
-    user.Password, user.StreetAddress,
+	_, err := store.DB.Query(`INSERT INTO users (uuid, first_name, last_name, email, phone_number, 
+    password, street_address, city, state, zipcode, timezone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+		uuid, user.Firstname, user.Lastname,
+		user.Email, user.PhoneNumber,
+		user.Password, user.StreetAddress,
 		user.City, user.State, user.ZipCode,
 		user.Timezone)
 	return err
@@ -63,7 +57,7 @@ func (store *DBStore) GetUserByEmail(email string) ([]*User, error) {
 
 		err := rows.Scan(&user.Id, &user.UUID, &user.Firstname, &user.Lastname,
 			&user.Email, &user.Password, &user.PhoneNumber, &user.StreetAddress,
-			&user.City, &user.State, &user.ZipCode, &user.Timezone); 
+			&user.City, &user.State, &user.ZipCode, &user.Timezone, &user.Created)
 		if err != nil {
 			log.Fatal(err)
 			return nil, err
@@ -102,4 +96,3 @@ func (store *DBStore) GetPositions() ([]*Position, error) {
 	}
 	return positions, nil
 }
-

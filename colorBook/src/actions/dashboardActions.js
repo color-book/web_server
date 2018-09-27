@@ -7,9 +7,10 @@ import { BASE_URL } from '../../config'
  */
 export const UPDATE_SELECTED_JOB = 'UPDATE_SELECTED_JOB';
 export const SET_SIDEBAR_OPEN = 'SET_SIDEBAR_OPEN';
-export const UPDATE_CREATE_JOB_INPUT = 'UPDATE_CREATE_JOB_INPUT'
-export const JOB_VALIDATED = 'JOB_VALIDATED'
-export const FOCUS_START_DATE = 'FOCUS_START_DATE'
+export const UPDATE_CREATE_JOB_INPUT = 'UPDATE_CREATE_JOB_INPUT';
+export const JOB_VALIDATED = 'JOB_VALIDATED';
+export const JOB_CREATED = 'JOB_CREATED';
+export const FOCUS_START_DATE = 'FOCUS_START_DATE';
 
 
 /**
@@ -31,6 +32,10 @@ export function updateCreateJobInput(element, value) {
 
 export function jobValidated(validated, jobValidatedErrorMessage) {
   return { type: JOB_VALIDATED, validated, jobValidatedErrorMessage }
+}
+
+export function jobCreated(newJobUUID) {
+  return { type: JOB_CREATED, newJobUUID }
 }
 
 export function focusStartDate() {
@@ -78,6 +83,34 @@ export function asyncGenerateJobID() {
 
 export function asyncCreateJob() {
   return (dispatch, getState) => {
-    console.log(getState())
+
+    let createAJobInfo = getState().createAJob
+    let authToken = localStorage.getItem('CB_token')
+
+    let postData = {
+      title: createAJobInfo.title,
+      projectTitle: createAJobInfo.projectTitle,
+      jobID: createAJobInfo.jobID,
+      clientName: createAJobInfo.clientName,
+      clientPhoneNumber: createAJobInfo.clientPhoneNumber,
+      clientStreet: createAJobInfo.clientStreet,
+      clientCity: createAJobInfo.clientCity,
+      clientState: createAJobInfo.clientState,
+      estimatedTotalHours: createAJobInfo.estimatedTotalHours,
+      estimatedStartDate: createAJobInfo.estimatedStartDate.format(),
+      jobTotal: createAJobInfo.jobTotal,
+      downPaymentPercentage: createAJobInfo.downPaymentPercentage,
+      downPaymentAmount: createAJobInfo.downPaymentAmount
+    }
+
+    console.log('postData: ', postData)
+
+    axios.post(`${BASE_URL}/api/create-new-job`, postData, {headers: {Authorization: authToken}})
+      .then(res => {
+        if (res.data.success) {
+          console.log(res)
+          dispatch(jobCreated(res.data.newJobUUID))
+        }
+      })
   }
 }

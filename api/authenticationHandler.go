@@ -1,28 +1,29 @@
 package api
 
 import (
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
 	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 
-	"github.com/color-book/web_server/dataStore"
 	"github.com/color-book/web_server/configVars"
+	"github.com/color-book/web_server/dataStore"
+	"github.com/color-book/web_server/sessionStore"
 )
 
 type JwtTokenResponse struct {
-	Token string `json:"token"`
-	Sucess bool `json:"success"`
+	Token        string `json:"token"`
+	Sucess       bool   `json:"success"`
 	ErrorMessage string `json:"errorMessage"`
 }
 
 /*
 *
 * REGISTER USER FUNCTION
-*/
+ */
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/api/register" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -49,7 +50,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	if successfullyCreated {
@@ -62,7 +62,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 /*
 *
 * LOGIN FUNCTION
-*/
+ */
 func Login(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/api/login" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -98,6 +98,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			if error != nil {
 				fmt.Println(error)
 			}
+			sessionStore.SetSessionValue(w, r, "user_uuid", *users[0].UUID)
+			sessionStore.SetSessionValue(w, r, "user_token_string", tokenString)
 			json.NewEncoder(w).Encode(JwtTokenResponse{Token: tokenString, Sucess: true, ErrorMessage: ""})
 		} else {
 			json.NewEncoder(w).Encode(JwtTokenResponse{Token: "", Sucess: false, ErrorMessage: "Incorrect Password"})
@@ -108,6 +110,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
+*
+* LOGOUT FUNCTION
+ */
+func Logout(w http.ResponseWriter, r *http.Request) {
+	sessionStore.SetSessionValue(w, r, "user_token_string", "")
+	json.NewEncoder(w).Encode(JwtTokenResponse{Token: "", Sucess: true, ErrorMessage: ""})
+}
 
 func GetPositions(w http.ResponseWriter, r *http.Request) {
 	positions, err := dataStore.Store.GetPositions()
@@ -126,15 +136,15 @@ func GetPositions(w http.ResponseWriter, r *http.Request) {
 /* ----------------- PASSWORD HASHING ------------------ */
 
 func hashAndSalt(pwd []byte) string {
-    
+
 	// Use GenerateFromPassword to hash & salt pwd
 	// MinCost is just an integer constant provided by the bcrypt
-	// package along with DefaultCost & MaxCost. 
+	// package along with DefaultCost & MaxCost.
 	// The cost can be any value you want provided it isn't lower
 	// than the MinCost (4)
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
 	if err != nil {
-			log.Println(err)
+		log.Println(err)
 	}
 	// GenerateFromPassword returns a byte slice so we need to
 	// convert the bytes to a string and return it
@@ -148,9 +158,9 @@ func comparePasswords(hashedPwd string, plainPwd string) bool {
 	bytePlainPwd := []byte(plainPwd)
 	err := bcrypt.CompareHashAndPassword(byteHash, bytePlainPwd)
 	if err != nil {
-			log.Println(err)
-			return false
+		log.Println(err)
+		return false
 	}
-	
+
 	return true
 }

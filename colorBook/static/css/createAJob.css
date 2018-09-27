@@ -63,3 +63,17 @@
 .start-date-label {
   display: block;
 }
+
+.line-item-group {
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.line-item-hours-price {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hours-price-items {
+  width: 45%;
+}

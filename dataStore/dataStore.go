@@ -2,6 +2,8 @@ package dataStore
 
 import (
 	"database/sql"
+
+	"github.com/twinj/uuid"
 )
 
 // List the Data Store's methods
@@ -10,6 +12,11 @@ type StoreType interface {
 	GetUserByEmail(email string) ([]*User, error)
 	GetPositions() ([]*Position, error)
 	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
+	CreateJob(jobInfo *JobInfo, userUUID string) (string, error)
+}
+
+func init() {
+	uuid.Init()
 }
 
 // The `dbStore` struct will implement the `Store` interface

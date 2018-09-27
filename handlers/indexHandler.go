@@ -1,8 +1,10 @@
 package handlers
 
 import (
-	"net/http"
 	"html/template"
+	"net/http"
+
+	"github.com/color-book/web_server/sessionStore"
 )
 
 func RenderLogin(w http.ResponseWriter, r *http.Request) {
@@ -39,4 +41,12 @@ func RenderCreateAJob(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.Execute(w, "")
 
+}
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	sessionStore.SetSessionValue(w, r, "user_token_string", "")
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	// tmpl := template.Must(template.ParseFiles("./templates/login.html"))
+
+	// tmpl.Execute(w, "")
 }

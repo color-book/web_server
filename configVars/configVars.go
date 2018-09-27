@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 )
 
+// Add any config variables here
 type Configuration struct {
 	DB_CONNECTION_STRING string
 	JWT_TOKEN_SECRET string
+	SESSION_KEY string
 }
 
 var Config Configuration
