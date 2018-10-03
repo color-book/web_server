@@ -11,7 +11,10 @@ export const UPDATE_CREATE_JOB_INPUT = 'UPDATE_CREATE_JOB_INPUT';
 export const JOB_VALIDATED = 'JOB_VALIDATED';
 export const JOB_CREATED = 'JOB_CREATED';
 export const FOCUS_START_DATE = 'FOCUS_START_DATE';
-
+export const ADD_NEW_LINE_ITEM = 'ADD_NEW_LINE_ITEM';
+export const UPDATE_LINE_ITEM = 'UPDATE_LINE_ITEM';
+export const REMOVE_LINE_ITEM = 'REMOVE_LINE_ITEM';
+export const LINE_ITEMS_ADDED = 'LINE_ITEMS_ADDED'
 
 /**
  * action creators
@@ -40,6 +43,22 @@ export function jobCreated(newJobUUID) {
 
 export function focusStartDate() {
   return { type: FOCUS_START_DATE }
+}
+
+export function addNewLineItem() {
+  return { type: ADD_NEW_LINE_ITEM }
+}
+
+export function updateLineItem(item, index, value) {
+  return { type: UPDATE_LINE_ITEM, item, index, value }
+}
+
+export function removeLineItem(index) {
+  return { type: REMOVE_LINE_ITEM, index }
+}
+
+export function lineItemsAdded() {
+  return { type: LINE_ITEMS_ADDED }
 }
 
 /*END SYNCHRONOUS ACTIONS */
@@ -112,5 +131,33 @@ export function asyncCreateJob() {
           dispatch(jobCreated(res.data.newJobUUID))
         }
       })
+  }
+}
+
+export function asyncSaveLineItems() {
+  return (dispatch, getState) => {
+    let lineItems = getState().jobLineItems
+    let authToken = localStorage.getItem('CB_token')
+    let filteredLineItems = lineItems.filter((item, index) => {
+      console.log(item)
+      if (item.item && item.jobUUID) return item
+    })
+    let postData = {lineItems: filteredLineItems}
+
+    axios.post(`${BASE_URL}/api/save-line-items`, postData, {headers: {Authorization: authToken}})
+      .then(res => {
+        if (res.data.success) {
+
+          // Make call to get the users for the next page
+          axios.get(`${BASE_URL}/api/gather-users`, {headers: {Authorization: authToken}})
+            .then(res => {
+              if (res.data.success) {
+                dispatch(lineItemsAdded())
+                console.log(res.data)
+              }
+            })
+        }
+      })
+
   }
 }

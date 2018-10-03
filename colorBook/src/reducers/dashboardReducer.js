@@ -5,7 +5,11 @@ import {
   UPDATE_CREATE_JOB_INPUT,
   JOB_VALIDATED,
   JOB_CREATED,
-  FOCUS_START_DATE
+  FOCUS_START_DATE,
+  ADD_NEW_LINE_ITEM,
+  UPDATE_LINE_ITEM,
+  REMOVE_LINE_ITEM,
+  LINE_ITEMS_ADDED,
 } from '../actions/dashboardActions'
 
 import update from 'immutability-helper';
@@ -17,6 +21,8 @@ const initialState = {
   sidebarOpen: false,
   page: g_page,
   newJobUUID: '',
+  jobCreated: true,
+  lineItemsCompleted: true,
   createAJob: {
     title: '',
     projectTitle: '',
@@ -34,13 +40,13 @@ const initialState = {
     downPaymentAmount: '',
     jobValidated: false,
     jobValidationErrorMessage: '',
-    jobCreated: true,
   },
   jobLineItems: [{
-    title: '',
-    notes: '',
-    estimatedHours: '',
-    estimatedPrice: ''
+    item: '',
+    jobUUID: '',
+    description: '',
+    hours: '',
+    price: ''
   }]
 }
 
@@ -59,6 +65,14 @@ export function dashboardReducer(state = initialState, action) {
       return jobCreated(state, action.newJobUUID)
     case FOCUS_START_DATE:
       return focusStartDate(state)
+    case ADD_NEW_LINE_ITEM:
+      return addNewLineItem(state)
+    case UPDATE_LINE_ITEM:
+      return updateLineItem(state, action.item, action.index, action.value)
+    case REMOVE_LINE_ITEM:
+      return removeLineItem(state, action.index)
+    case LINE_ITEMS_ADDED:
+      return lineItemsAdded(state)
     default:
       return state
   }
@@ -85,10 +99,41 @@ function jobValidated(state, validated, jobValidationErrorMessage) {
 
 function jobCreated(state, newJobUUID) {
   let newState = update(state, {newJobUUID: {$set: newJobUUID}})
-  return update(newState, {createAJob: {jobCreated: {$set: true}}})
+  return update(newState, {jobCreated: {$set: true}})
 }
 
 function focusStartDate(state) {
   let currentFocusStartDate = state.createAJob.estimatedStartDateFocused
   return update(state, {createAJob: {estimatedStartDateFocused: {$set: !currentFocusStartDate}}})
+}
+
+function addNewLineItem(state) {
+  let newLineItem = [{
+    item: '',
+    jobUUID: '',
+    description: '',
+    hours: '',
+    price: ''
+  }]
+  return update(state, {jobLineItems: {$set: state.jobLineItems.concat(newLineItem)}})
+}
+
+function updateLineItem(state, propertyName, index, value) {
+
+  const newLineItems = state.jobLineItems.map((lineItem, lineIndex) => {
+    if (index !== lineIndex) return lineItem
+    else {
+      lineItem[propertyName] = value
+      return lineItem
+    }
+  });
+  return update(state, {jobLineItems: {$set: newLineItems}})
+}
+
+function removeLineItem(state, index) {
+  return update(state, {jobLineItems: {$set: state.jobLineItems.filter((item, itemIndex) => index !== itemIndex)}})
+}
+
+function lineItemsAdded(state) {
+  return update(state, {lineItemsAdded: {$set: true}})
 }

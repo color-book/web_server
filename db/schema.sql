@@ -94,8 +94,9 @@ CREATE TABLE job_line_item (
   id SERIAL PRIMARY KEY,
   job_uuid VARCHAR(36) REFERENCES jobs(uuid),
   item TEXT,
-  estimated_hours DOUBLE PRECISION,
-  estimated_price DOUBLE PRECISION
+  description text,
+  hours DOUBLE PRECISION,
+  price DOUBLE PRECISION
 );
 
 -- Users to Job

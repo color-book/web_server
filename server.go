@@ -82,11 +82,13 @@ func runServer() {
 	router.HandleFunc("/api/get-positions", API_EnsureAuthenticated(api.GetPositions)).Methods("GET")
 	router.HandleFunc("/api/generate-job-id", API_EnsureAuthenticated(api.GenerateJobID)).Methods("GET")
 	router.HandleFunc("/api/logout", API_EnsureAuthenticated(api.Logout)).Methods("GET")
+	router.HandleFunc("/api/gather-users", API_EnsureAuthenticated(api.GatherUsers)).Methods("GET")
 	router.HandleFunc("/api/verify-job-title-and-id", API_EnsureAuthenticated(api.VerifyJobTitleAndID)).Methods("POST")
 	router.HandleFunc("/api/register", api.Register).Methods("POST")
 	router.HandleFunc("/api/login", api.Login).Methods("POST")
 	router.HandleFunc("/api/calculate-job", API_EnsureAuthenticated(api.CalculateJob)).Methods("POST")
 	router.HandleFunc("/api/create-new-job", API_EnsureAuthenticated(api.CreateNewJob)).Methods("POST")
+	router.HandleFunc("/api/save-line-items", API_EnsureAuthenticated(api.SaveLineItems)).Methods("POST")
 
 	router.Use(loggingMiddleware)
 

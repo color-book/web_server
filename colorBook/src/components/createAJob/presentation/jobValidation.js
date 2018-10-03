@@ -6,6 +6,7 @@ const JobValidation = ({updateJobTitle, updateProjectTitle, updateJobID, verifyJ
 
   return (
     <div>
+      <h5>Add Job Info <i>(Step 1 of 3)</i></h5>
       <Form>
         <FormGroup>
           <Label for="jobTitle">Job Name</Label>

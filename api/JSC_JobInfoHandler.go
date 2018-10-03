@@ -10,6 +10,11 @@ import (
 	"github.com/color-book/web_server/sessionStore"
 )
 
+type GenericResponse struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
 type CreateJobValidationResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"errorMessage"`
@@ -88,5 +93,39 @@ func CreateNewJob(w http.ResponseWriter, r *http.Request) {
 	} else {
 		json.NewEncoder(w).Encode(CreateNewJobResponse{Success: true, ErrorMessage: "", NewJobUUID: newJobUUID})
 	}
+
+}
+
+/*
+*
+* SAVE LINE ITEMS FUNCTION
+ */
+func SaveLineItems(w http.ResponseWriter, r *http.Request) {
+
+	var lineItems dataStore.LineItems
+	var err error = nil
+
+	err = json.NewDecoder(r.Body).Decode(&lineItems)
+	if err != nil {
+		panic(err)
+	}
+
+	for index := 0; index < len(lineItems.LineItems); index++ {
+		err = dataStore.Store.AddLineItem(&lineItems.LineItems[index])
+	}
+
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding line items"})
+		panic(err)
+	} else {
+		json.NewEncoder(w).Encode(GenericResponse{Success: true, ErrorMessage: ""})
+	}
+}
+
+/*
+*
+* GATHER USERS FUNCTION
+ */
+func GatherUsers(w http.ResponseWriter, r *http.Request) {
 
 }

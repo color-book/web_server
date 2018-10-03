@@ -4,19 +4,20 @@ import PropTypes from 'prop-types';
 import JobDetailInputContainer from '../container/jobDetailInputs'
 import JobValidationContainer from '../container/jobValidation'
 import LineItemsContainer from '../container/lineItems'
+import AddUsers from '../container/addUsers'
 
-const CreateAJob = ({jobValidated, jobCreated}) =>  {
+const CreateAJob = ({jobValidated, jobCreated, lineItemsCompleted}) =>  {
 
   let pageComponents = <p>Hmm someting went wrong... Please try again</p>
 
-  if (!jobCreated) {
+  if (jobCreated && lineItemsCompleted) {
+    pageComponents = <AddUsers />
+  } else if (jobCreated && !lineItemsCompleted) {
+    pageComponents = <LineItemsContainer />
+  } else {
     pageComponents = <div>
       <JobValidationContainer />
       {jobValidated && <JobDetailInputContainer />}
-    </div>
-  } else {
-    pageComponents = <div>
-      <LineItemsContainer />
     </div>
   }
 
@@ -30,7 +31,8 @@ const CreateAJob = ({jobValidated, jobCreated}) =>  {
 
 CreateAJob.propTypes = {
   jobValidated: PropTypes.bool.isRequired,
-  jobCreated: PropTypes.bool.isRequired
+  jobCreated: PropTypes.bool.isRequired,
+  lineItemsCompleted: PropTypes.bool.isRequired
 };
 
 export default CreateAJob;

@@ -29,6 +29,22 @@ type JobInfo struct {
 	DownPaymentAmount     string `json:"downPaymentAmount"`
 }
 
+type LineItems struct {
+	LineItems []LineItem `json:"lineItems"`
+}
+
+type LineItem struct {
+	Item        string `json:"item"`
+	JobUUID     string `json:"jobUUID"`
+	Description string `json:"description"`
+	Hours       string `json:"hours"`
+	Price       string `json:"price"`
+}
+
+/*
+*
+* GATHER JOB INFO FROM PROVIDED ID, TITLE, PROJECT TITLE
+ */
 func (store *DBStore) GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error) {
 
 	rows, err := store.DB.Query(`SELECT * FROM jobs WHERE
@@ -57,6 +73,10 @@ func (store *DBStore) GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*I
 	return jobInfo, nil
 }
 
+/*
+*
+* CREATE A JOB
+ */
 func (store *DBStore) CreateJob(jobInfo *JobInfo, userUUID string) (string, error) {
 
 	// NewV4 generates a new RFC4122 version 4 UUID a cryptographically secure random UUID.
@@ -76,6 +96,22 @@ func (store *DBStore) CreateJob(jobInfo *JobInfo, userUUID string) (string, erro
 	}
 
 	return fmt.Sprintf("%v", uuid), err
+}
+
+/*
+*
+* ADD LINE ITEMS
+ */
+func (store *DBStore) AddLineItem(lineItem *LineItem) error {
+
+	_, err := store.DB.Query(`INSERT INTO job_line_item (job_uuid, item, description, hours, price) values ($1,$2,$3,$4,$5)`,
+		lineItem.JobUUID, lineItem.Item, lineItem.Description, lineItem.Hours, lineItem.Price)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return err
 }
 
 /* ----------------- Helper Functions ------------------ */

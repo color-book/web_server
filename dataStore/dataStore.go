@@ -13,6 +13,7 @@ type StoreType interface {
 	GetPositions() ([]*Position, error)
 	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
 	CreateJob(jobInfo *JobInfo, userUUID string) (string, error)
+	AddLineItem(lineItem *LineItem) error
 }
 
 func init() {
