@@ -23,6 +23,16 @@ CREATE TABLE users (
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Users Default Work Info
+CREATE TABLE user_default_work_info (
+  id SERIAL PRIMARY KEY,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  user_default_weight DOUBLE PRECISION,
+  user_default_rental_fee DOUBLE PRECISION,
+  user_default_in_training BOOLEAN,
+  user_default_revenue_bonus BOOLEAN
+);
+
 -- Password History Table
 CREATE TABLE password_history (
   id SERIAL PRIMARY KEY,

@@ -14,6 +14,7 @@ type StoreType interface {
 	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
 	CreateJob(jobInfo *JobInfo, userUUID string) (string, error)
 	AddLineItem(lineItem *LineItem) error
+	GetUsers() ([]*UserPublic, error)
 }
 
 func init() {

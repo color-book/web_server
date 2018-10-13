@@ -14,7 +14,9 @@ export const FOCUS_START_DATE = 'FOCUS_START_DATE';
 export const ADD_NEW_LINE_ITEM = 'ADD_NEW_LINE_ITEM';
 export const UPDATE_LINE_ITEM = 'UPDATE_LINE_ITEM';
 export const REMOVE_LINE_ITEM = 'REMOVE_LINE_ITEM';
-export const LINE_ITEMS_ADDED = 'LINE_ITEMS_ADDED'
+export const LINE_ITEMS_ADDED = 'LINE_ITEMS_ADDED';
+export const FULL_USER_LIST = 'FULL_USER_LIST';
+export const UPDATE_SELECTED_USERS = 'UPDATE_SELECTED_USERS';
 
 /**
  * action creators
@@ -59,6 +61,14 @@ export function removeLineItem(index) {
 
 export function lineItemsAdded() {
   return { type: LINE_ITEMS_ADDED }
+}
+
+export function fullUserList(users) {
+  return { type: FULL_USER_LIST, users}
+}
+
+export function updateSelectedUsers(user) {
+  return { type: UPDATE_SELECTED_USERS, user }
 }
 
 /*END SYNCHRONOUS ACTIONS */
@@ -139,7 +149,6 @@ export function asyncSaveLineItems() {
     let lineItems = getState().jobLineItems
     let authToken = localStorage.getItem('CB_token')
     let filteredLineItems = lineItems.filter((item, index) => {
-      console.log(item)
       if (item.item && item.jobUUID) return item
     })
     let postData = {lineItems: filteredLineItems}
@@ -152,12 +161,21 @@ export function asyncSaveLineItems() {
           axios.get(`${BASE_URL}/api/gather-users`, {headers: {Authorization: authToken}})
             .then(res => {
               if (res.data.success) {
+                let users = res.data.users.map(user => {return {uuid: user.uuid, name: `${user.firstname} ${user.lastname}`}})
+                dispatch(fullUserList(users))
                 dispatch(lineItemsAdded())
-                console.log(res.data)
               }
             })
         }
       })
 
+  }
+}
+
+export function asyncAddUsersToJob() {
+  return (dispatch, getState) => {
+    let postData = {
+      
+    }
   }
 }

@@ -41,6 +41,15 @@ type LineItem struct {
 	Price       string `json:"price"`
 }
 
+type UsersToJob struct {
+	UsersToJob []UserToJob `json:"usersToJob"`
+}
+
+type UserToJob struct {
+	JobUUID  string `json:"jobUUID"`
+	UserUUID string `json:"userUUID"`
+}
+
 /*
 *
 * GATHER JOB INFO FROM PROVIDED ID, TITLE, PROJECT TITLE

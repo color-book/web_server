@@ -33,6 +33,12 @@ type CreateNewJobResponse struct {
 	NewJobUUID   string `json:"newJobUUID"`
 }
 
+type GatherUsersResponse struct {
+	Success      bool                    `json:"success"`
+	ErrorMessage string                  `json:"errorMessage"`
+	Users        []*dataStore.UserPublic `json:"users"`
+}
+
 /*
 *
 * VERIFY JOB TITLE AND ID FUNCTION
@@ -127,5 +133,12 @@ func SaveLineItems(w http.ResponseWriter, r *http.Request) {
 * GATHER USERS FUNCTION
  */
 func GatherUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := dataStore.Store.GetUsers()
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding line items"})
+		panic(err)
+	} else {
+		json.NewEncoder(w).Encode(GatherUsersResponse{Success: true, ErrorMessage: "", Users: users})
+	}
 
 }

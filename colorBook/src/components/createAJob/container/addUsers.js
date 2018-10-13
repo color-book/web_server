@@ -1,16 +1,18 @@
 import { connect } from 'react-redux'
-import {  } from '../../../actions/dashboardActions'
+import { updateSelectedUsers, asyncAddUsersToJob } from '../../../actions/dashboardActions'
 import AddUsers from '../presentation/addUsers';
 
 const mapStateToProps = (state, ownProps) => {
   return {
-
+    users: state.fullUserList,
+    selectedUsers: state.selectedUsers
   }
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-   
+    updateSelectedUsers: (selectedUser) => {dispatch(updateSelectedUsers(selectedUser))},
+    addUsersToJob: () => {dispatch(asyncAddUsersToJob())}
   }
 }
 

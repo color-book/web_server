@@ -10,6 +10,8 @@ import {
   UPDATE_LINE_ITEM,
   REMOVE_LINE_ITEM,
   LINE_ITEMS_ADDED,
+  FULL_USER_LIST,
+  UPDATE_SELECTED_USERS,
 } from '../actions/dashboardActions'
 
 import update from 'immutability-helper';
@@ -47,7 +49,9 @@ const initialState = {
     description: '',
     hours: '',
     price: ''
-  }]
+  }],
+  fullUserList: [{uuid: '123456', name: 'Joyce Test'}, {uuid: '654321', name: 'New Test'}],
+  selectedUsers: []
 }
 
 export function dashboardReducer(state = initialState, action) {
@@ -73,6 +77,10 @@ export function dashboardReducer(state = initialState, action) {
       return removeLineItem(state, action.index)
     case LINE_ITEMS_ADDED:
       return lineItemsAdded(state)
+    case FULL_USER_LIST:
+      return setFullUserList(state, action.users)
+    case UPDATE_SELECTED_USERS:
+      return updateSelectedUsers(state, action.user)
     default:
       return state
   }
@@ -135,5 +143,13 @@ function removeLineItem(state, index) {
 }
 
 function lineItemsAdded(state) {
-  return update(state, {lineItemsAdded: {$set: true}})
+  return update(state, {lineItemsCompleted: {$set: true}})
+}
+
+function setFullUserList(state, users) {
+  return update(state, {fullUserList: {$set: users}})
+}
+
+function updateSelectedUsers(state, users) {
+  return update(state, {selectedUsers: {$set: users}})
 }
