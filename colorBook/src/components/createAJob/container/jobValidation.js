@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { updateCreateJobInput, asyncVerifyJobInfo, asyncGenerateJobID } from '../../../actions/dashboardActions'
+import { updateCreateJobInput, asyncVerifyJobInfo, asyncGenerateJobID } from '../../../actions/createAJobActions'
 import JobValidation from '../presentation/jobValidation';
 
 const mapStateToProps = (state, ownProps) => {

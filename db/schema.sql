@@ -85,7 +85,7 @@ CREATE TABLE jobs (
   actual_start_date TIMESTAMP WITH TIME ZONE,
   actual_total_hours INTEGER,
   completed BOOLEAN,
-  inProgress BOOLEAN,
+  in_progress BOOLEAN,
   street_address TEXT,
   city VARCHAR(50),
   state VARCHAR(2),

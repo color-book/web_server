@@ -6,11 +6,14 @@ import JobValidationContainer from '../container/jobValidation'
 import LineItemsContainer from '../container/lineItems'
 import AddUsers from '../container/addUsers'
 
-const CreateAJob = ({jobValidated, jobCreated, lineItemsCompleted}) =>  {
+const CreateAJob = ({jobValidated, jobCreated, lineItemsCompleted, usersAdded}) =>  {
 
   let pageComponents = <p>Hmm someting went wrong... Please try again</p>
 
-  if (jobCreated && lineItemsCompleted) {
+  if (jobCreated && lineItemsCompleted && usersAdded) {
+    pageComponents = <p></p>
+    window.location.href = '/dashboard'
+  } else if (jobCreated && lineItemsCompleted) {
     pageComponents = <AddUsers />
   } else if (jobCreated && !lineItemsCompleted) {
     pageComponents = <LineItemsContainer />

@@ -4,9 +4,9 @@ import { createStore, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk';
 import { Provider } from 'react-redux'
 import CreateAJobContainer from '../components/createAJob/container/createAJob'
-import { dashboardReducer } from '../reducers/dashboardReducer.js'
+import { createAJobReducer } from '../reducers/createAJobReducer.js'
 
-const store = createStore(dashboardReducer, applyMiddleware(thunkMiddleware))
+const store = createStore(createAJobReducer, applyMiddleware(thunkMiddleware))
 
 ReactDOM.render(
   <Provider store={store}>

@@ -90,6 +90,7 @@ func runServer() {
 	router.HandleFunc("/api/calculate-job", API_EnsureAuthenticated(api.CalculateJob)).Methods("POST")
 	router.HandleFunc("/api/create-new-job", API_EnsureAuthenticated(api.CreateNewJob)).Methods("POST")
 	router.HandleFunc("/api/save-line-items", API_EnsureAuthenticated(api.SaveLineItems)).Methods("POST")
+	router.HandleFunc("/api/add-users-to-job", API_EnsureAuthenticated(api.AddUsersToJob)).Methods("POST")
 
 	router.Use(loggingMiddleware)
 

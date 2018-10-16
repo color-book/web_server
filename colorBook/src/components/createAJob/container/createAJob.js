@@ -6,6 +6,7 @@ const mapStateToProps = (state, ownProps) => {
     jobValidated: state.createAJob.jobValidated,
     jobCreated: state.jobCreated,
     lineItemsCompleted: state.lineItemsCompleted,
+    usersAdded: state.usersAdded,
     jobID: state.createAJob.jobID
   }
 }

@@ -40,6 +40,7 @@ type GatherUsersResponse struct {
 }
 
 /*
+* POST
 *
 * VERIFY JOB TITLE AND ID FUNCTION
  */
@@ -64,6 +65,7 @@ func VerifyJobTitleAndID(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+* GET
 *
 * GENERATE JOB ID FUNCTION
  */
@@ -75,6 +77,7 @@ func GenerateJobID(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+* POST
 *
 * CREATE NEW JOB FUNCTION
  */
@@ -103,6 +106,7 @@ func CreateNewJob(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+* POST
 *
 * SAVE LINE ITEMS FUNCTION
  */
@@ -129,6 +133,7 @@ func SaveLineItems(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+* GET
 *
 * GATHER USERS FUNCTION
  */
@@ -139,6 +144,35 @@ func GatherUsers(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	} else {
 		json.NewEncoder(w).Encode(GatherUsersResponse{Success: true, ErrorMessage: "", Users: users})
+	}
+
+}
+
+/*
+* POST
+*
+* ADD USERS TO JOB
+ */
+func AddUsersToJob(w http.ResponseWriter, r *http.Request) {
+
+	var usersToJob dataStore.UsersToJob
+	var err error = nil
+
+	err = json.NewDecoder(r.Body).Decode(&usersToJob)
+	if err != nil {
+		panic(err)
+	}
+
+	for index := 0; index < len(usersToJob.UsersToJob); index++ {
+		println(&usersToJob.UsersToJob[index])
+		err = dataStore.Store.AddUserToJob(&usersToJob.UsersToJob[index])
+	}
+
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding line items"})
+		panic(err)
+	} else {
+		json.NewEncoder(w).Encode(GenericResponse{Success: true, ErrorMessage: ""})
 	}
 
 }

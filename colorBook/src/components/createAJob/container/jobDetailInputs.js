@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { updateCreateJobInput, focusStartDate, asyncCreateJob } from '../../../actions/dashboardActions'
+import { updateCreateJobInput, focusStartDate, asyncCreateJob } from '../../../actions/createAJobActions'
 import JobDetailInputs from '../presentation/JobDetailInputs';
 
 const mapStateToProps = (state, ownProps) => {

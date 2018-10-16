@@ -47,7 +47,8 @@ type UsersToJob struct {
 
 type UserToJob struct {
 	JobUUID  string `json:"jobUUID"`
-	UserUUID string `json:"userUUID"`
+	UserUUID string `json:"uuid"`
+	Name     string `json:"name"`
 }
 
 /*
@@ -117,8 +118,24 @@ func (store *DBStore) AddLineItem(lineItem *LineItem) error {
 		lineItem.JobUUID, lineItem.Item, lineItem.Description, lineItem.Hours, lineItem.Price)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return err
+}
+
+/*
+*
+* Add User To Job
+ */
+func (store *DBStore) AddUserToJob(userToJob *UserToJob) error {
+
+	jobUUID, err := uuid.Parse(userToJob.JobUUID)
+	if err != nil {
+		return err
+	}
+
+	err = addUserToJob_Helper(store, jobUUID, userToJob.UserUUID)
 
 	return err
 }
@@ -130,8 +147,17 @@ func addUserToJob_Helper(store *DBStore, jobUUID uuid.Uuid, userUUID string) err
 
 	uuid := uuid.NewV4()
 
-	_, err := store.DB.Query(`INSERT INTO users_to_job (uuid, user_uuid, job_uuid) VALUES ($1,$2,$3);`,
-		uuid, userUUID, jobUUID)
+	// NOTE: This can be removed once we know the query below works
+	// _, err := store.DB.Query(`INSERT INTO users_to_job (uuid, user_uuid, job_uuid) VALUES ($1,$2,$3);`,
+	// 	uuid, userUUID, jobUUID)
+	// if err != nil {
+	// 	return err
+	// }
+
+	_, err := store.DB.Query(`INSERT INTO users_to_job (uuid, user_uuid, job_uuid, user_weight, user_rental_fee, user_in_training, user_revenue_bonus) 
+		(SELECT $1,$2,$3, user_default_weight, user_default_rental_fee, user_default_in_training, user_default_revenue_bonus
+			FROM user_default_work_info WHERE user_uuid = $4);`,
+		uuid, userUUID, jobUUID, userUUID)
 
 	return err
 

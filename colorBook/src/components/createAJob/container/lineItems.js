@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { addNewLineItem, updateLineItem, removeLineItem, asyncSaveLineItems } from '../../../actions/dashboardActions'
+import { addNewLineItem, updateLineItem, removeLineItem, asyncSaveLineItems } from '../../../actions/createAJobActions'
 import LineItems from '../presentation/lineItems';
 
 const mapStateToProps = (state, ownProps) => {
