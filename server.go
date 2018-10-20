@@ -35,6 +35,7 @@ var (
 type MiddlewareException struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"errorMessage"`
+	Redirect     string `json:"redirect"`
 }
 
 func runServer() {
@@ -83,6 +84,10 @@ func runServer() {
 	router.HandleFunc("/api/generate-job-id", API_EnsureAuthenticated(api.GenerateJobID)).Methods("GET")
 	router.HandleFunc("/api/logout", API_EnsureAuthenticated(api.Logout)).Methods("GET")
 	router.HandleFunc("/api/gather-users", API_EnsureAuthenticated(api.GatherUsers)).Methods("GET")
+	router.HandleFunc("/api/gather-clocked-in-job", API_EnsureAuthenticated(api.GatherClockedInJob)).Methods("GET")
+	router.HandleFunc("/api/gather-time-punch-job-info/{jobUUID:(?:.*)}", API_EnsureAuthenticated(api.GatherTimePunchJobInfo)).Methods("GET")
+
+	router.HandleFunc("/api/update-job-splits", API_EnsureAuthenticated(api.UpdateJobSplits)).Methods("PUT")
 
 	router.HandleFunc("/api/verify-job-title-and-id", API_EnsureAuthenticated(api.VerifyJobTitleAndID)).Methods("POST")
 	router.HandleFunc("/api/register", api.Register).Methods("POST")
@@ -168,13 +173,13 @@ func API_EnsureAuthenticated(next http.HandlerFunc) http.HandlerFunc {
 					// We can also view the token claims here with token.Claims
 					next(w, req)
 				} else {
-					json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "Invalid authorization token", Success: false})
+					json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "Invalid authorization token", Success: false, Redirect: "/login"})
 				}
 			} else {
-				json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "Improper authorization header", Success: false})
+				json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "Improper authorization header", Success: false, Redirect: "/login"})
 			}
 		} else {
-			json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "An authorization header is required", Success: false})
+			json.NewEncoder(w).Encode(MiddlewareException{ErrorMessage: "An authorization header is required", Success: false, Redirect: "/login"})
 		}
 	})
 }

@@ -8,14 +8,22 @@ import (
 
 // List the Data Store's methods
 type StoreType interface {
+
+	// userStore.go
 	CreateUser(user *User) error
 	GetUserByEmail(email string) ([]*User, error)
 	GetPositions() ([]*Position, error)
-	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
-	CreateJob(jobInfo *JobInfo, userUUID string) (string, error)
-	AddLineItem(lineItem *LineItem) error
 	GetUsers() ([]*UserPublic, error)
+
+	// jobInfoStore.go
+	GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*InitialJobInfo, error)
+	CreateJob(jobInfo *NewJobInfo, userUUID string) (string, error)
+	AddLineItem(lineItem *LineItem) error
 	AddUserToJob(userToJob *UserToJob) error
+	GetJobTitles() ([]*JobTitles, error)
+	GetClockedInJobByJobUUID(uuid string) ([]*JobClockInInfo, error)
+	GetClockedInJobByUserUUID(uuid string) ([]*JobClockInInfo, error)
+	UpdateJobSplits(jobSplits *JobSplits) error
 }
 
 func init() {

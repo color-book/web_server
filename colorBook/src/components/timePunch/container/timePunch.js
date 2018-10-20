@@ -1,17 +1,19 @@
 import { connect } from 'react-redux'
-import { updateSelectedJob } from '../../../actions/dashboardActions'
+import { asyncUpdateSelectedJob } from '../../../actions/dashboardActions'
 import TimePunch from '../presentation/timePunch'
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    jobNames: state.jobNames,
-    selectedJob: state.selectedJobToClockIn
+    jobOptions: state.jobNames,
+    selectedJob: state.selectedJobToClockIn,
+    redirect: state.redirect,
+    redirectPath: state.redirectPath
   }
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    updateSelectedJob: (selectedJob) => {dispatch(updateSelectedJob(selectedJob))}
+    updateSelectedJob: (selectedJob) => {dispatch(asyncUpdateSelectedJob(selectedJob))}
   }
 }
 

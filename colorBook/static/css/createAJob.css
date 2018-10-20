@@ -2,6 +2,14 @@
   margin-top: 20px;
 }
 
+.margin-bottom-10 {
+  margin-bottom: 10px;
+}
+
+.margin-right-5 {
+  margin-right: 5px;
+}
+
 .create-job-title {
   font-size: 22px;
 }
@@ -68,7 +76,7 @@
   display: block;
 }
 
-.line-item-group {
+.simple-well {
   border: 1px solid black;
   border-radius: 4px;
   padding: 10px;

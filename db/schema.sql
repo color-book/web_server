@@ -126,14 +126,24 @@ CREATE TABLE users_to_job (
   user_bonus_percentage DOUBLE PRECISION
 );
 
--- Users to time
-CREATE TABLE users_to_time (
+-- History of Users to time
+CREATE TABLE users_to_time_history (
   id SERIAL PRIMARY KEY,
   user_uuid VARCHAR(36) REFERENCES users(uuid),
   job_uuid VARCHAR(36) REFERENCES jobs(uuid),
   clocked_in TIMESTAMP WITH TIME ZONE,
   clocked_out TIMESTAMP WITH TIME ZONE,
   total_time DOUBLE PRECISION
+);
+
+-- Keeps track of users currently clocked in
+-- This way if a page is refreshed we'll still know
+-- if they're clocked in and their current time
+CREATE TABLE users_clocked_in (
+  id SERIAL PRIMARY KEY,
+  user_uuid VARCHAR(36) REFERENCES users(uuid),
+  job_uuid VARCHAR(36) REFERENCES jobs(uuid),
+  clocked_in TIMESTAMP WITH TIME ZONE
 );
 
 -- Job to Users to materials

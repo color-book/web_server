@@ -11,6 +11,7 @@ import {
   FULL_USER_LIST,
   UPDATE_SELECTED_USERS,
   USERS_ADDED,
+  QUICK_UPDATE_SPLIT_AMOUNTS
 } from '../actions/createAJobActions'
 
 import update from 'immutability-helper';
@@ -20,8 +21,8 @@ const initialState = {
   sidebarOpen: false,
   page: g_page,
   newJobUUID: '',
-  jobCreated: false,
-  lineItemsCompleted: false,
+  jobCreated: true,
+  lineItemsCompleted: true,
   usersAdded: false,
   createAJob: {
     title: '',
@@ -49,7 +50,9 @@ const initialState = {
     price: ''
   }],
   fullUserList: [],
-  selectedUsers: []
+  selectedUsers: [],
+  contractorSplit: undefined,
+  subContractorSplit: undefined
 }
 
 export function createAJobReducer(state = initialState, action) {
@@ -79,6 +82,10 @@ export function createAJobReducer(state = initialState, action) {
       return updateSelectedUsers(state, action.user)
     case USERS_ADDED:
       return usersAdded(state)
+    case QUICK_UPDATE_SPLIT_AMOUNTS:
+      return quickUpdateSplitAmounts(state, action.splitAmount)
+    case UPDATE_CONTRACTOR_SPLIT:
+      return updateContractorSplit(state, action.element, action.value)
     default:
       return state
   }
@@ -151,4 +158,13 @@ function updateSelectedUsers(state, users) {
 
 function usersAdded(state) {
   return update(state, {usersAdded: {$set: true}})
+}
+
+function quickUpdateSplitAmounts(state, splitAmount) {
+  let newState = update(state, {contractorSplit: {$set: splitAmount.contractor}})
+  return update(newState, {subContractorSplit: {$set: splitAmount.sub}})
+}
+
+function updateContractorSplit(state, element, value) {
+  return update(state, {[element]: {$set: value}})
 }

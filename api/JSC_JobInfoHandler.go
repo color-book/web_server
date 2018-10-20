@@ -15,6 +15,12 @@ type GenericResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
+type GenericRedirectResponse struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"errorMessage"`
+	Redirect     string `json:"redirectPath"`
+}
+
 type CreateJobValidationResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"errorMessage"`
@@ -33,10 +39,10 @@ type CreateNewJobResponse struct {
 	NewJobUUID   string `json:"newJobUUID"`
 }
 
-type GatherUsersResponse struct {
-	Success      bool                    `json:"success"`
-	ErrorMessage string                  `json:"errorMessage"`
-	Users        []*dataStore.UserPublic `json:"users"`
+type GatherJobTitlesResponse struct {
+	Success      bool                   `json:"success"`
+	ErrorMessage string                 `json:"errorMessage"`
+	JobTitles    []*dataStore.JobTitles `json:"jobTitles"`
 }
 
 /*
@@ -83,7 +89,7 @@ func GenerateJobID(w http.ResponseWriter, r *http.Request) {
  */
 func CreateNewJob(w http.ResponseWriter, r *http.Request) {
 
-	var jobInfo dataStore.JobInfo
+	var jobInfo dataStore.NewJobInfo
 
 	userUUID, ok := sessionStore.GetSessionValue(w, r, "user_uuid")
 	if !ok {
@@ -133,22 +139,6 @@ func SaveLineItems(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-* GET
-*
-* GATHER USERS FUNCTION
- */
-func GatherUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := dataStore.Store.GetUsers()
-	if err != nil {
-		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding line items"})
-		panic(err)
-	} else {
-		json.NewEncoder(w).Encode(GatherUsersResponse{Success: true, ErrorMessage: "", Users: users})
-	}
-
-}
-
-/*
 * POST
 *
 * ADD USERS TO JOB
@@ -164,12 +154,51 @@ func AddUsersToJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for index := 0; index < len(usersToJob.UsersToJob); index++ {
-		println(&usersToJob.UsersToJob[index])
 		err = dataStore.Store.AddUserToJob(&usersToJob.UsersToJob[index])
 	}
 
 	if err != nil {
-		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding line items"})
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while adding users to job"})
+		panic(err)
+	} else {
+		json.NewEncoder(w).Encode(GenericResponse{Success: true, ErrorMessage: ""})
+	}
+
+}
+
+/*
+* GET
+*
+* GATHER JOB TITLES FUNCTION
+ */
+func GatherJobTitles(w http.ResponseWriter, r *http.Request) {
+	jobTitles, err := dataStore.Store.GetJobTitles()
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while gathering job titles"})
+		panic(err)
+	} else {
+		json.NewEncoder(w).Encode(GatherJobTitlesResponse{Success: true, ErrorMessage: "", JobTitles: jobTitles})
+	}
+
+}
+
+/*
+* PUT
+*
+* UPDATE JOB SPLITS
+ */
+func UpdateJobSplits(w http.ResponseWriter, r *http.Request) {
+	var jobSplits dataStore.JobSplits
+
+	err := json.NewDecoder(r.Body).Decode(&jobSplits)
+	if err != nil {
+		panic(err)
+	}
+
+	err = dataStore.Store.UpdateJobSplits(&jobSplits)
+
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while updating Job Splits"})
 		panic(err)
 	} else {
 		json.NewEncoder(w).Encode(GenericResponse{Success: true, ErrorMessage: ""})

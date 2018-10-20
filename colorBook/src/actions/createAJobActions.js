@@ -16,7 +16,9 @@ export const REMOVE_LINE_ITEM = 'REMOVE_LINE_ITEM';
 export const LINE_ITEMS_ADDED = 'LINE_ITEMS_ADDED';
 export const FULL_USER_LIST = 'FULL_USER_LIST';
 export const UPDATE_SELECTED_USERS = 'UPDATE_SELECTED_USERS';
-export const USERS_ADDED = 'USERS_ADDED'
+export const USERS_ADDED = 'USERS_ADDED';
+export const QUICK_UPDATE_SPLIT_AMOUNTS = 'QUICK_UPDATE_SPLIT_AMOUNTS';
+export const UPDATE_CONTRACTOR_SPLIT = 'UPDATE_CONTRACTOR_SPLIT';
 
 /**
  * action creators
@@ -69,6 +71,15 @@ export function updateSelectedUsers(user) {
 
 export function usersAdded() {
   return { type: USERS_ADDED }
+}
+
+export function quickUpdateSplitAmounts(splitAmount) {
+  return { type: QUICK_UPDATE_SPLIT_AMOUNTS, splitAmount}
+}
+
+
+export function updateContractorSplit(element, value) {
+  return { type: UPDATE_CONTRACTOR_SPLIT, element, value}
 }
 
 /*END SYNCHRONOUS ACTIONS */
@@ -188,7 +199,19 @@ export function asyncAddUsersToJob() {
     axios.post(`${BASE_URL}/api/add-users-to-job`, postData, {headers: {Authorization: authToken}})
       .then(res => {
         if (res.data.success) {
-          dispatch(usersAdded())
+
+          let splitsPutData = {
+            jobUUID: jobUUID,
+            subContractorSplit: getState().subContractorSplit,
+            contractorSplit: getState().contractorSplit
+          }
+
+          axios.put(`${BASE_URL}/api/update-job-splits`, splitPutData, {headers: {Authorization: authToken}})
+            .then(res => {
+              if (res.data.success) {
+                dispatch(usersAdded())
+              }
+            })
         }
         else {
           console.log('ERROR .... need to do something here')

@@ -6,7 +6,7 @@ const LineItems = ({lineItems, addNewLineItem, updateLineItem, removeLineItem, s
   let lineItemElements;
 
   lineItemElements = lineItems.map((item, index) => {
-    return <Form key={index} className="line-item-group">
+    return <Form key={index} className="simple-well">
       <div className="line-item-header">
         <h5>Line Item</h5><Button size="sm" className="delete-line-item" onClick={() => {removeLineItem(index)}}>X</Button>
       </div>

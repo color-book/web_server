@@ -1,8 +1,10 @@
 package dataStore
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/twinj/uuid"
 )
@@ -13,7 +15,7 @@ type InitialJobInfo struct {
 	JobID        string `json:"jobID"`
 }
 
-type JobInfo struct {
+type NewJobInfo struct {
 	JobTitle              string `json:"title"`
 	ProjectTitle          string `json:"projectTitle"`
 	JobID                 string `json:"jobID"`
@@ -27,6 +29,12 @@ type JobInfo struct {
 	JobTotal              string `json:"jobTotal"`
 	DownPaymentPercentage string `json:"downPaymentPercentage"`
 	DownPaymentAmount     string `json:"downPaymentAmount"`
+}
+
+type JobTitles struct {
+	JobTitle     string `json:"title"`
+	JobUUID      string `json:"uuid"`
+	ProjectTitle string `json:"project_title"`
 }
 
 type LineItems struct {
@@ -49,6 +57,31 @@ type UserToJob struct {
 	JobUUID  string `json:"jobUUID"`
 	UserUUID string `json:"uuid"`
 	Name     string `json:"name"`
+}
+
+type JobSplits struct {
+	JobUUID            string `json:"jobUUID"`
+	ContractorSplit    string `json:"contractorSplit"`
+	SubContractorSplit string `json:"subContractorSplit"`
+}
+
+type JobClockInInfo struct {
+	JobUUID             string     `json:"jobUUID"`
+	JobTitle            string     `json:"jobTitle"`
+	ProjectTitle        string     `json:"projectTitle"`
+	ClockInTime         *time.Time `json:"clockInTime"`
+	CurrentUserMinutes  float64    `json:"currentUserMinutes"`
+	CurrentTeamMinutes  float64    `json:"currentTeamMinutes"`
+	EstimatedTotalHours float64    `json:"estimatedTotalHours"`
+}
+
+type JobTimePunchInfo struct {
+	JobUUID             string  `json:"jobUUID"`
+	JobTitle            string  `json:"jobTitle"`
+	ProjectTitle        string  `json:"projectTitle"`
+	CurrentUserMinutes  float64 `json:"currentUserMinutes"`
+	CurrentTeamMinutes  float64 `json:"currentTeamMinutes"`
+	EstimatedTotalHours float64 `json:"estimatedTotalHours"`
 }
 
 /*
@@ -87,7 +120,7 @@ func (store *DBStore) GatherInitialJobInfo(initialJobInfo *InitialJobInfo) ([]*I
 *
 * CREATE A JOB
  */
-func (store *DBStore) CreateJob(jobInfo *JobInfo, userUUID string) (string, error) {
+func (store *DBStore) CreateJob(jobInfo *NewJobInfo, userUUID string) (string, error) {
 
 	// NewV4 generates a new RFC4122 version 4 UUID a cryptographically secure random UUID.
 	uuid := uuid.NewV4()
@@ -117,10 +150,6 @@ func (store *DBStore) AddLineItem(lineItem *LineItem) error {
 	_, err := store.DB.Query(`INSERT INTO job_line_item (job_uuid, item, description, hours, price) values ($1,$2,$3,$4,$5)`,
 		lineItem.JobUUID, lineItem.Item, lineItem.Description, lineItem.Hours, lineItem.Price)
 
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 
@@ -140,19 +169,104 @@ func (store *DBStore) AddUserToJob(userToJob *UserToJob) error {
 	return err
 }
 
+/*
+*
+* Update Job Splits
+ */
+func (store *DBStore) UpdateJobSplits(jobSplits *JobSplits) error {
+
+	_, err := store.DB.Query(`UPDATE jobs SET contractor_split_percentage = $1 AND sub_contractor_split_percentage = $2 
+														WHERE uuid = $3`, jobSplits.ContractorSplit, jobSplits.SubContractorSplit, jobSplits.JobUUID)
+
+	return err
+}
+
+/*
+*
+* Get Job Title, Project Title, and UUID of Job
+ */
+func (store *DBStore) GetJobTitles() ([]*JobTitles, error) {
+
+	rows, err := store.DB.Query(`SELECT title, project_title, uuid FROM jobs`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	jobs := []*JobTitles{}
+
+	for rows.Next() {
+		job := &JobTitles{}
+
+		err := rows.Scan(&job.JobTitle, &job.ProjectTitle, &job.JobUUID)
+		if err != nil {
+			panic(err)
+			// return nil, err
+		}
+
+		jobs = append(jobs, job)
+	}
+
+	return jobs, nil
+}
+
+/*
+*
+* Returns JobClockInInfo by Job UUID
+ */
+func (store *DBStore) GetClockedInJobByJobUUID(uuid string) ([]*JobClockInInfo, error) {
+	rows, err := store.DB.Query(`SELECT users_clocked_in.job_uuid, users_to_job.user_current_job_hours, jobs.actual_total_hours, 
+															jobs.estimated_total_hours, jobs.title, jobs.project_title 
+															FROM jobs
+															JOIN users_to_job ON users_to_job.job_uuid = jobs.uuid
+															JOIN users_clocked_in ON users_clocked_in.job_uuid = jobs.uuid
+															WHERE users_clocked_in.job_uuid = $1`, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	clockedInJobInfo, err := formatClockInJobQuery_Helper(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return clockedInJobInfo, nil
+}
+
+/*
+*
+* Returns JobClockInInfo by User UUID
+ */
+func (store *DBStore) GetClockedInJobByUserUUID(uuid string) ([]*JobClockInInfo, error) {
+	rows, err := store.DB.Query(`SELECT users_clocked_in.job_uuid, users_to_job.user_current_job_hours, jobs.actual_total_hours, 
+															jobs.estimated_total_hours, jobs.title, jobs.project_title 
+															FROM jobs
+															JOIN users_to_job ON users_to_job.job_uuid = jobs.uuid
+															JOIN users_clocked_in ON users_clocked_in.job_uuid = jobs.uuid
+															WHERE users_clocked_in.user_uuid = $1`, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	clockedInJobInfo, err := formatClockInJobQuery_Helper(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return clockedInJobInfo, nil
+
+}
+
+// func (store *DBStore) GetTimePunchJobInfoByJobUUID(uuid string) ([]*JobTimePunchInfo, error) {
+
+// }
+
 /* ----------------- Helper Functions ------------------ */
 
 // This will associate a user with a job
 func addUserToJob_Helper(store *DBStore, jobUUID uuid.Uuid, userUUID string) error {
 
 	uuid := uuid.NewV4()
-
-	// NOTE: This can be removed once we know the query below works
-	// _, err := store.DB.Query(`INSERT INTO users_to_job (uuid, user_uuid, job_uuid) VALUES ($1,$2,$3);`,
-	// 	uuid, userUUID, jobUUID)
-	// if err != nil {
-	// 	return err
-	// }
 
 	_, err := store.DB.Query(`INSERT INTO users_to_job (uuid, user_uuid, job_uuid, user_weight, user_rental_fee, user_in_training, user_revenue_bonus) 
 		(SELECT $1,$2,$3, user_default_weight, user_default_rental_fee, user_default_in_training, user_default_revenue_bonus
@@ -161,4 +275,25 @@ func addUserToJob_Helper(store *DBStore, jobUUID uuid.Uuid, userUUID string) err
 
 	return err
 
+}
+
+func formatClockInJobQuery_Helper(rows *sql.Rows) ([]*JobClockInInfo, error) {
+	defer rows.Close()
+
+	jobs := []*JobClockInInfo{}
+
+	for rows.Next() {
+		job := &JobClockInInfo{}
+
+		err := rows.Scan(&job.JobUUID, &job.CurrentUserMinutes, &job.CurrentTeamMinutes,
+			&job.EstimatedTotalHours, &job.JobTitle, &job.ProjectTitle)
+		if err != nil {
+			panic(err)
+			// return nil, err
+		}
+
+		jobs = append(jobs, job)
+	}
+
+	return jobs, nil
 }
