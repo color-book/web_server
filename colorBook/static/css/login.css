@@ -1,0 +1,38 @@
+.login-main {
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+.colorBook-login-header {
+  font-family: 'Open Sans', sans-serif;
+  border-bottom: 1px solid black;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.colorBook-login {
+  display: flex;
+  justify-content: center;
+}
+
+.colorBook-login-form {
+  margin-top: 25px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.signup-link {
+  margin-top: 10px;
+  font-size: 15px;
+  display: block;
+}
+
+.colorBook-logo {
+  width: 50vw;
+  padding: 0px;
+  margin-left: -10px;
+}

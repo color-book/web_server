@@ -1,0 +1,5 @@
+config.json
+/colorBook/node_modules
+
+.DS_Store
+colorBook/.DS_Store
