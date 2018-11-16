@@ -24,6 +24,7 @@ type StoreType interface {
 	GetClockedInJobByJobUUID(uuid string) ([]*JobClockInInfo, error)
 	GetClockedInJobByUserUUID(uuid string) ([]*JobClockInInfo, error)
 	UpdateJobSplits(jobSplits *JobSplits) error
+	GetTimePunchJobInfoByJobUUID(jobUUID string, userUUID string) (*JobTimePunchInfo, error)
 }
 
 func init() {

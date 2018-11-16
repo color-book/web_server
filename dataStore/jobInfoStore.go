@@ -79,6 +79,8 @@ type JobTimePunchInfo struct {
 	JobUUID             string  `json:"jobUUID"`
 	JobTitle            string  `json:"jobTitle"`
 	ProjectTitle        string  `json:"projectTitle"`
+	Payout              float64 `json:"payout"`
+	HourlyWageRating    string  `json:"hourlyWageRating"`
 	CurrentUserMinutes  float64 `json:"currentUserMinutes"`
 	CurrentTeamMinutes  float64 `json:"currentTeamMinutes"`
 	EstimatedTotalHours float64 `json:"estimatedTotalHours"`
@@ -257,9 +259,43 @@ func (store *DBStore) GetClockedInJobByUserUUID(uuid string) ([]*JobClockInInfo,
 
 }
 
-// func (store *DBStore) GetTimePunchJobInfoByJobUUID(uuid string) ([]*JobTimePunchInfo, error) {
+func (store *DBStore) GetTimePunchJobInfoByJobUUID(jobUUID string, userUUID string) (*JobTimePunchInfo, error) {
 
-// }
+	usersCurrentPayout, err := getUserCurrentPayout(store, jobUUID, userUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := store.DB.Query(`
+		WITH total_hours AS (
+			SELECT SUM(total_time) AS total_hours_worked, job_uuid
+			FROM users_to_time_history
+			WHERE job_uuid = $1
+		),
+		users_total_hours AS (
+			SELECT SUM(total_time) AS users_total_hours_worked, job_uuid
+			FROM users_to_time_history
+			WHERE job_uuid = $2 AND user_uuid = $3
+		)
+		SELECT jobs.uuid, jobs.title, jobs.project_title, jobs.estimated_total_hours,
+			total_hours.total_hours_worked, users_total_hours.users_total_hours_worked
+		FROM jobs
+		LEFT JOIN total_hours on jobs.uuid = total_hours.job_uuid
+		LEFT JOIN users_total_hours on jobs.uuid = users_total_hours.job_uuid
+		WHERE jobs.uuid = $7`, jobUUID, jobUUID, userUUID, jobUUID, jobUUID, userUUID, jobUUID)
+
+	defer rows.Close()
+
+	jobInfo := &JobTimePunchInfo{}
+	jobInfo.Payout = usersCurrentPayout.UserPayout
+	jobInfo.HourlyWageRating = getHourlyPayRating(usersCurrentPayout.UserHourlyRate)
+
+	err = rows.Scan(&jobInfo.JobUUID, &jobInfo.JobTitle, &jobInfo.ProjectTitle, &jobInfo.EstimatedTotalHours,
+		&jobInfo.CurrentTeamMinutes, &jobInfo.CurrentUserMinutes)
+
+	return jobInfo, nil
+
+}
 
 /* ----------------- Helper Functions ------------------ */
 

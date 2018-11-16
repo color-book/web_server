@@ -7,7 +7,7 @@ import TimePunchContainer from '../components/timePunch/container/timePunch'
 import { dashboardReducer } from '../reducers/dashboardReducer'
 import { asyncLoadJobs } from '../actions/dashboardActions'
 
-window.store = createStore(dashboardReducer, applyMiddleware(thunkMiddleware))
+const store = createStore(dashboardReducer, applyMiddleware(thunkMiddleware))
 
 // Load jobs
 store.dispatch(asyncLoadJobs())

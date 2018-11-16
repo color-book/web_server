@@ -7,13 +7,18 @@ import (
 	"github.com/color-book/web_server/dataStore"
 	"github.com/color-book/web_server/sessionStore"
 	"github.com/gorilla/mux"
-	// "github.com/gorilla/mux"
 )
 
 type GatherClockInJobInfoResponse struct {
 	Success          bool                        `json:"success"`
 	ErrorMessage     string                      `json:"errorMessage"`
 	ClockedInJobInfo []*dataStore.JobClockInInfo `json:"clockedInJobInfo"`
+}
+
+type GatherTimePunchJobInfoResponse struct {
+	Success       bool                        `json:"success"`
+	ErrorMessage  string                      `json:"errorMessage"`
+	TimePunchInfo *dataStore.JobTimePunchInfo `json:"timePunchInfo"`
 }
 
 /*
@@ -76,8 +81,20 @@ func GatherClockedInJob(w http.ResponseWriter, r *http.Request) {
  */
 func GatherTimePunchJobInfo(w http.ResponseWriter, r *http.Request) {
 	jobUUID := mux.Vars(r)["jobUUID"]
-	println(jobUUID)
+	userUUID, ok := sessionStore.GetSessionValue(w, r, "user_uuid")
+	if !ok {
+		// User technically isn't logged in.
+		json.NewEncoder(w).Encode(GenericRedirectResponse{Success: false, ErrorMessage: "User Is Not Logged in", Redirect: "/login"})
+		return
+	}
 
-	// jobInfo, err = dataStore.Store.GetTimePunchJobInfoByJobUUID(jobUUID)
+	jobInfo, err := dataStore.Store.GetTimePunchJobInfoByJobUUID(jobUUID, userUUID)
+	if err != nil {
+		json.NewEncoder(w).Encode(GenericResponse{Success: false, ErrorMessage: "An Error Occurred while gathering job clock in info"})
+		panic(err)
+	}
+
+	json.NewEncoder(w).Encode(GatherTimePunchJobInfoResponse{Success: true, ErrorMessage: "", TimePunchInfo: jobInfo})
+	return
 
 }
